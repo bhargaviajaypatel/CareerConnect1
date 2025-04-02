@@ -1,0 +1,624 @@
+.placement-material-page {
+  min-height: 100vh;
+  background-color: #f6f7fb;
+  position: relative;
+}
+
+.placement-material-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.placement-material-heading {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.placement-material-intro {
+  text-align: center;
+  color: #555;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+.placement-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 0.8rem 1.5rem;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #555;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.tab-button:hover {
+  background-color: #f0f5ff;
+  border-color: #6c63ff;
+  color: #6c63ff;
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background-color: #6c63ff;
+  color: #fff;
+  border-color: #6c63ff;
+  box-shadow: 0 4px 10px rgba(108,99,255,0.2);
+}
+
+.tab-button i {
+  margin-right: 8px;
+}
+
+.tab-content {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(108,99,255,0.2);
+  border-radius: 50%;
+  border-top-color: #6c63ff;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  background-color: #ffe8e8;
+  color: #e53e3e;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  border: 1px solid #fed7d7;
+}
+
+.search-container {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.companies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.company-card {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #eee;
+}
+
+.company-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.company-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.company-profile {
+  font-size: 0.95rem;
+  color: #6c63ff;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.company-description {
+  color: #555;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.company-details-btn {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.company-details-btn:hover {
+  background-color: #5a52d5;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+}
+
+.no-results h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.no-results p {
+  margin-bottom: 1rem;
+}
+
+.resources-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.resource-card {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.resource-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+}
+
+.resource-description {
+  color: #555;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.resource-link {
+  display: inline-block;
+  background-color: #6c63ff;
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.resource-link:hover {
+  background-color: #5a52d5;
+}
+
+/* Interview tab styles */
+.interview-tab h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.interview-intro {
+  text-align: center;
+  color: #555;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.interview-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.interview-section {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border: 1px solid #eee;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.section-title i {
+  margin-right: 10px;
+  color: #6c63ff;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+}
+
+.tip-item {
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.tip-item i {
+  color: #6c63ff;
+  margin-right: 10px;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.mock-interview-section {
+  background-color: #f0f5ff;
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid #d4e0ff;
+}
+
+.mock-interview-section h3 {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mock-interview-section h3 i {
+  margin-right: 10px;
+  color: #6c63ff;
+}
+
+.mock-interview-section p {
+  color: #555;
+  margin-bottom: 1.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.schedule-btn {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.schedule-btn:hover {
+  background-color: #5a52d5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(108,99,255,0.2);
+}
+
+/* Resources tab styles */
+.resources-tab h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.resources-intro {
+  text-align: center;
+  color: #555;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* Company selection styles */
+.company-selection h2 {
+  font-size: 1.6rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Section headings styles */
+.section-heading {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.section-heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #6c63ff;
+  border-radius: 3px;
+}
+
+.section-description {
+  text-align: center;
+  color: #555;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* Roadmap details styles */
+.company-roadmap-details {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  background-color: #f6f7fb;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+  color: #555;
+}
+
+.back-button:hover {
+  background-color: #edf2ff;
+  color: #6c63ff;
+  transform: translateX(-2px);
+}
+
+.back-button i {
+  margin-right: 8px;
+}
+
+.selected-company-info {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.selected-company-info h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.selected-company-profile {
+  color: #6c63ff;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.selected-company-description {
+  color: #555;
+  line-height: 1.6;
+}
+
+.roadmap-content {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 0;
+}
+
+.roadmap-section-title {
+  font-size: 1.6rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.roadmap-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background-color: #6c63ff;
+}
+
+.roadmap-item {
+  margin-bottom: 2rem;
+}
+
+.roadmap-title {
+  font-size: 1.4rem;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+}
+
+.roadmap-description {
+  color: #555;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.skills-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.skill-card {
+  background-color: #f8f9ff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e8ecfd;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.skill-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.skill-name {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.skill-name i {
+  color: #ffc107;
+  margin-right: 8px;
+}
+
+.skill-description {
+  color: #555;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.skill-resources h6 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+}
+
+.resources-list-compact {
+  list-style: none;
+  padding: 0;
+}
+
+.resource-item-compact {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.resource-item-compact:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.resource-link-compact {
+  display: block;
+  color: #6c63ff;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.resource-link-compact:hover {
+  color: #5a52d5;
+  text-decoration: underline;
+}
+
+.resource-link-compact i {
+  font-size: 0.8rem;
+  margin-right: 5px;
+}
+
+.resource-desc-compact {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.no-resources,
+.no-skills-message,
+.no-roadmaps-message {
+  color: #888;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  text-align: center;
+  font-style: italic;
+} 

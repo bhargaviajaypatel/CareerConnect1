@@ -1,0 +1,370 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from '../../../api/axiosConfig.js';
+import sanitizeHtml from 'sanitize-html';
+import '../Home-CSS/Application.css';
+import '../Home-CSS/interview-experience.css';
+import Footer from "../HomeComponents/Footer.js";
+
+function InterviewExperience() {
+  const navigate = useNavigate();
+  const [interviews, setInterviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDifficulty, setFilterDifficulty] = useState('all');
+  const [filterResult, setFilterResult] = useState('all');
+  const [stats, setStats] = useState({
+    total: 0,
+    successful: 0,
+    companies: 0,
+    avgDifficulty: 'Medium'
+  });
+  const headerRef = useRef(null);
+  
+  // Handle navigation functions
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
+  const fetchInterviews = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/auth/fetchinterviewexperience');
+      setInterviews(response.data.data);
+      
+      // Calculate stats
+      const totalInterviews = response.data.data.length;
+      const successfulInterviews = response.data.data.filter(
+        interview => interview.result === 'Successful'
+      ).length;
+      
+      // Get unique companies
+      const uniqueCompanies = new Set(
+        response.data.data.map(interview => interview.companyName)
+      ).size;
+      
+      // Set the stats
+      setStats({
+        total: totalInterviews,
+        successful: successfulInterviews,
+        companies: uniqueCompanies,
+        avgDifficulty: 'Medium' // This could be calculated based on actual data
+      });
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching interview experiences:', error);
+      setLoading(false);
+    }
+  };
+
+  // Authentication check
+  useEffect(() => {
+    // Get the userId or email from localStorage
+    const userEmail = localStorage.getItem('userEmail');
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    
+    if (!isAuthenticated || !userEmail) {
+      console.log("Not authenticated, redirecting to login");
+      navigate("/login");
+      return;
+    }
+    
+    fetchInterviews();
+  }, [navigate]);
+
+  // Animated cards effect on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animated-card');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const cards = document.querySelectorAll('.interview-card');
+    cards.forEach((card) => observer.observe(card));
+
+    return () => {
+      cards.forEach((card) => observer.unobserve(card));
+    };
+  }, [interviews]);
+
+  const sanitizeContent = (content) => {
+    return sanitizeHtml(content, {
+      allowedTags: ['p', 'br', 'b', 'i', 'u', 'em', 'strong'],
+      allowedAttributes: {},
+    });
+  };
+  
+  const getDifficultyBadgeClass = (level) => {
+    switch (level?.toLowerCase()) {
+      case 'easy':
+        return 'badge-difficulty-easy';
+      case 'medium':
+        return 'badge-difficulty-medium';
+      case 'difficult':
+        return 'badge-difficulty-difficult';
+      default:
+        return 'badge-difficulty-medium';
+    }
+  };
+
+  const getResultBadgeClass = (result) => {
+    if (result === 'Successful') return 'badge-result-successful';
+    if (result === 'Rejected') return 'badge-result-rejected';
+    return 'badge-result-waiting';
+  };
+
+  // Filter interviews based on search term and filters
+  const filteredInterviews = interviews.filter((interview) => {
+    const matchesSearch = 
+      (interview.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      interview.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      interview.username?.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesDifficulty = 
+      filterDifficulty === 'all' || 
+      interview.interviewLevel?.toLowerCase() === filterDifficulty;
+    
+    const matchesResult = 
+      filterResult === 'all' || 
+      interview.result === filterResult;
+    
+    return matchesSearch && matchesDifficulty && matchesResult;
+  });
+
+  return (
+    <div className="interview-experience-page">
+      {/* Custom navbar without Link components to avoid navigation issues */}
+      <nav className="navbar navbar-expand-lg fixed-top">
+        <div className="container-fluid">
+          <span className="navbar-brand me-auto" onClick={() => handleNavigation('/home')} style={{cursor: 'pointer'}}>CareerConnect</span>
+          <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar">
+            <div className="offcanvas-header">
+              <h5 className="offcanvas-title">Career Connect</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div className="offcanvas-body">
+              <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/home')} style={{cursor: 'pointer'}}>Home</span>
+                </li>
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/companylisting')} style={{cursor: 'pointer'}}>Company Listing</span>
+                </li>
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/scheduledInterview')} style={{cursor: 'pointer'}}>Scheduled Interviews</span>
+                </li>
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/faq')} style={{cursor: 'pointer'}}>Placement Material</span>
+                </li>
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2 active" onClick={() => handleNavigation('/interviewexperience')} style={{cursor: 'pointer'}}>Interview Experience</span>
+                </li>
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/profile')} style={{cursor: 'pointer'}}>Profile</span>
+                </li>
+                <li className="nav-item">
+                  <span className="nav-link mx-lg-2" onClick={() => {
+                    localStorage.removeItem('isAuthenticated');
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userId');
+                    handleNavigation('/');
+                  }} style={{cursor: 'pointer'}}>Logout</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div>
+        {/* Dynamic interactive header */}
+        <div className="interview-experience-header" ref={headerRef}>
+          <h2>Interview Experiences</h2>
+          <p>Learn from peers & share your career journey</p>
+        </div>
+        
+        <div className="container">
+          {/* Stats cards similar to admin dashboard */}
+          <div className="stats-container">
+            <div className="stat-card purple">
+              <div className="stat-number">{stats.total}</div>
+              <div className="stat-label">Total Experiences</div>
+            </div>
+            <div className="stat-card green">
+              <div className="stat-number">{stats.successful}</div>
+              <div className="stat-label">Successful Interviews</div>
+            </div>
+            <div className="stat-card orange">
+              <div className="stat-number">{stats.companies}</div>
+              <div className="stat-label">Companies</div>
+            </div>
+            <div className="stat-card pink">
+              <div className="stat-number">{stats.avgDifficulty}</div>
+              <div className="stat-label">Avg. Difficulty</div>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ margin: 0, fontSize: '1.8rem' }}>Interview Experiences</h2>
+            {/* Fixed button area with improved styling */}
+            <div className="add-button-container" style={{ margin: 0 }}>
+              <button onClick={() => handleNavigation('/addexperience')}>
+                Add Interview Experience
+              </button>
+            </div>
+          </div>
+          
+          {/* Search and filter controls */}
+          <div className="search-filter-container">
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search by company, position, or username..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+            
+            <div className="filter-controls">
+              <div className="filter-group">
+                <label className="filter-label">
+                  Difficulty Level
+                </label>
+                <select 
+                  value={filterDifficulty} 
+                  onChange={(e) => setFilterDifficulty(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Levels</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="difficult">Difficult</option>
+                </select>
+              </div>
+              
+              <div className="filter-group">
+                <label className="filter-label">
+                  Result
+                </label>
+                <select 
+                  value={filterResult} 
+                  onChange={(e) => setFilterResult(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">All Results</option>
+                  <option value="Successful">Successful</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Waiting">Waiting</option>
+                </select>
+              </div>
+              
+              <div className="filter-button-container">
+                <button 
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterDifficulty('all');
+                    setFilterResult('all');
+                  }}
+                  className="filter-button"
+                >
+                  Clear Filters
+                </button>
+              </div>
+              
+              <div className="filter-button-container">
+                <button 
+                  onClick={() => {
+                    // This would handle any additional filter logic if needed
+                  }}
+                  className="clear-all-filters-btn"
+                >
+                  <i className="fa fa-filter"></i> Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="loading-container">
+              <div className="loading"></div>
+              <p className="loading-text">Loading experiences...</p>
+            </div>
+          ) : filteredInterviews.length > 0 ? (
+            <div className="interview-cards-container">
+              {filteredInterviews.map((interview, index) => (
+                <div 
+                  key={interview._id} 
+                  className="interview-card" 
+                  style={{ 
+                    '--card-index': index,
+                    animationDelay: `${index * 0.1}s` 
+                  }}
+                >
+                  <div className="interview-card-header">
+                    <div className="interview-card-details">
+                      <div className="interview-card-username">Posted by: {interview.username}</div>
+                      <div className="interview-card-company">{interview.companyName}</div>
+                      <div className="interview-card-position">{interview.position}</div>
+                    </div>
+                    <div className="interview-card-badges">
+                      <div className={`interview-card-badge ${getDifficultyBadgeClass(interview.interviewLevel)}`}>
+                        {interview.interviewLevel}
+                      </div>
+                      <div className={`interview-card-badge ${getResultBadgeClass(interview.result)}`}>
+                        {interview.result}
+                      </div>
+                    </div>
+                  </div>
+                  <div 
+                    className="interview-card-content"
+                    dangerouslySetInnerHTML={{ __html: sanitizeContent(interview.experience) }} 
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-interviews">
+              {searchTerm || filterDifficulty !== 'all' || filterResult !== 'all' ? (
+                <>
+                  <p>No matching interview experiences found.</p>
+                  <p>Try adjusting your search criteria or clear filters.</p>
+                  <button 
+                    onClick={() => {
+                      setSearchTerm('');
+                      setFilterDifficulty('all');
+                      setFilterResult('all');
+                    }}
+                    className="clear-all-filters-btn"
+                  >
+                    Clear All Filters
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p>No interview experiences found.</p>
+                  <p>Be the first to share your experience!</p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <Footer />
+    </div>
+  );
+}
+
+export default InterviewExperience;

@@ -1,0 +1,258 @@
+.registration-container {
+    max-width: 800px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: #1a237e;
+    margin-bottom: 30px;
+    font-size: 2.2rem;
+    font-weight: 600;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  label {
+    font-weight: 600;
+    color: #333;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    align-items: center;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .form-control:focus {
+    border-color: #1a237e;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.2);
+  }
+  
+  .resume-input {
+    padding: 10px;
+    background-color: #f8f9fa;
+  }
+  
+  .form-text {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  select.form-control {
+    appearance: none;
+    background: #fff;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: 95%;
+    background-position-y: center;
+  }
+  
+  input[type="submit"],
+  button.register-btn,
+  button.login-btn {
+    width: 100%;
+    max-width: 700px;
+    margin: 20px auto;
+    display: block;
+    padding: 14px;
+    background: linear-gradient(45deg, #1a237e, #283593);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(26, 35, 126, 0.2);
+  }
+  
+  input[type="submit"]:hover,
+  button.register-btn:hover,
+  button.login-btn:hover {
+    background: linear-gradient(45deg, #283593, #1a237e);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 35, 126, 0.3);
+  }
+  
+  input[type="submit"]:active,
+  button.register-btn:active,
+  button.login-btn:active {
+    transform: translateY(1px);
+  }
+  
+  .link {
+    text-align: center;
+    margin-top: 20px;
+    display: block;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .link:hover {
+    text-decoration: underline;
+    color: #0056b3;
+  }
+  
+  .error-message {
+    color: #d9534f;
+    background-color: #f2dede;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #ebccd1;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  /* Career Preferences Section */
+  .form-section {
+    background-color: #f5f9ff;
+    padding: 25px;
+    border-radius: 10px;
+    margin: 30px auto;
+    max-width: 700px;
+    border-left: 4px solid #1a237e;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .section-title {
+    color: #1a237e;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    position: relative;
+  }
+  
+  .section-description {
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .form-text.text-muted {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+  }
+  
+  /* Resume Upload */
+  .form-control-file {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  .form-control-file:hover {
+    border-color: #1a237e;
+    background-color: #f0f4ff;
+  }
+  
+  /* Button styling */
+  .btn.btn-primary {
+    width: 100%;
+    max-width: 700px;
+    margin: 20px auto;
+    display: block;
+    padding: 14px;
+    background: linear-gradient(45deg, #1a237e, #283593);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(26, 35, 126, 0.2);
+  }
+  
+  .btn.btn-primary:hover {
+    background: linear-gradient(45deg, #283593, #1a237e);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 35, 126, 0.3);
+  }
+  
+  .btn.btn-primary:active {
+    transform: translateY(1px);
+  }
+  
+  /* Already a user section */
+  form > div:last-of-type {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  form > div:last-of-type p {
+    margin-bottom: 5px;
+    color: #555;
+  }
+  
+  form > div:last-of-type a {
+    color: #1a237e;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  form > div:last-of-type a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .registration-container {
+      width: 90%;
+      padding: 20px;
+      margin: 30px auto;
+    }
+    
+    .form-group {
+      width: 100%;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    .form-section {
+      padding: 15px;
+      margin: 20px auto;
+    }
+    
+    .section-title {
+      font-size: 1.2rem;
+    }
+  }
+  
