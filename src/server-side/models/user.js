@@ -20,9 +20,17 @@ const userSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   placementStatus: { type: String, default: "Not Placed" },
   companyPlaced: { type: String, default: null },
+  package: { type: Number, default: null },
+  position: { type: String, default: null },
+  location: { type: String, default: null },
   appliedCompanies: [
     { type: mongoose.Schema.Types.ObjectId, ref: "companies" },
   ],
+  scheduledInterviews: [{
+    companyName: { type: String, required: true },
+    interviewDate: { type: Date, required: true },
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company" }
+  }],
   resume: {
     filename: { type: String },
     path: { type: String }

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useContext } from "react";
 import axios from "../../api/axiosConfig.js";
 import { useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../../App.js";
+import Navbar from "../Home/HomeComponents/Navbar.js";
+import Footer from "../Home/HomeComponents/Footer.js";
 import "./Profile-CSS/ProfilePage.css";
 import "./Profile-CSS/RoadmapStyles.css";
 import "../Home/Home-CSS/Application.css";
@@ -22,7 +24,7 @@ function ProfilePage() {
   const [documentUploadLoading, setDocumentUploadLoading] = useState(false);
   const [roadmapProgress, setRoadmapProgress] = useState({});
   const [savedRoadmapsLoading, setSavedRoadmapsLoading] = useState(false);
-  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+  const { darkMode } = useContext(DarkModeContext);
   
   const navigate = useNavigate();
 
@@ -113,6 +115,14 @@ function ProfilePage() {
       
       const response = await axios.get(`/auth/profile?userId=${userId}`);
       if (response.data && response.data.user) {
+        console.log("Profile data received:", response.data.user);
+        console.log("Placement data:", {
+          status: response.data.user.placementStatus,
+          company: response.data.user.companyPlaced,
+          package: response.data.user.package,
+          position: response.data.user.position,
+          location: response.data.user.location
+        });
         setProfileData(response.data.user);
         setError(null);
       } else {
@@ -293,20 +303,159 @@ function ProfilePage() {
   // Document management functions
   const fetchDocuments = async () => {
     try {
-      // Get userId from localStorage
-      const userId = localStorage.getItem('userId');
+      // Get the userId from localStorage
+      const userId = localStorage.getItem("userId");
+      
       if (!userId) {
         console.error("No userId found in localStorage");
         return;
       }
       
+      // Add userId as a query parameter
       const response = await axios.get(`/auth/documents?userId=${userId}`);
+      
       if (response.data && response.data.documents) {
         setDocuments(response.data.documents);
       }
     } catch (err) {
-      console.error("Error fetching documents:", err);
-      // Don't set error since this is not critical functionality
+      console.log("Error fetching documents:", err);
+    }
+  };
+  
+  const triggerDocumentUpload = () => {
+    documentInputRef.current.click();
+  };
+  
+  const handleDocumentUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    setDocumentUploadLoading(true);
+    
+    try {
+      // Get userId from localStorage
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        setError({
+          type: 'error',
+          message: 'User ID not found. Please log in again.'
+        });
+        return;
+      }
+      
+      // Create FormData for each file
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData();
+        formData.append('document', files[i]);
+        
+        // Post to the correct endpoint
+        const response = await axios.post(`/auth/documents/upload?userId=${userId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        if (response.data && response.data.document) {
+          // Add new document to state
+          setDocuments(prev => [...prev, response.data.document]);
+        }
+      }
+      
+      // Refresh documents list
+      await fetchDocuments();
+      
+      setError({
+        type: 'success',
+        message: `${files.length > 1 ? files.length + ' documents' : 'Document'} uploaded successfully!`
+      });
+      
+      setTimeout(() => setError(null), 3000);
+    } catch (err) {
+      console.error("Error uploading documents:", err);
+      setError({
+        type: 'error',
+        message: "Failed to upload documents. Please try again."
+      });
+    } finally {
+      setDocumentUploadLoading(false);
+      // Reset the file input value to allow uploading the same file again
+      e.target.value = '';
+    }
+  };
+  
+  const handleDeleteDocument = async (documentId) => {
+    if (!window.confirm("Are you sure you want to delete this document?")) {
+      return;
+    }
+    
+    try {
+      const response = await axios.delete(`/auth/documents/${documentId}`);
+      
+      if (response.data && response.data.success) {
+        // Remove from local state
+        setDocuments(documents.filter(doc => doc._id !== documentId));
+        
+        setError({
+          type: 'success',
+          message: "Document deleted successfully!"
+        });
+        
+        setTimeout(() => setError(null), 3000);
+      }
+    } catch (err) {
+      console.error("Error deleting document:", err);
+      setError({
+        type: 'error',
+        message: "Failed to delete document. Please try again."
+      });
+    }
+  };
+  
+  const filteredDocuments = () => {
+    if (!documentSearchQuery.trim()) return documents;
+    
+    return documents.filter(doc => 
+      doc.name.toLowerCase().includes(documentSearchQuery.toLowerCase()) ||
+      doc.fileType.toLowerCase().includes(documentSearchQuery.toLowerCase())
+    );
+  };
+  
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+  
+  const getDocumentIcon = (fileType) => {
+    const iconMap = {
+      'pdf': 'fas fa-file-pdf',
+      'doc': 'fas fa-file-word',
+      'docx': 'fas fa-file-word',
+      'jpg': 'fas fa-file-image',
+      'jpeg': 'fas fa-file-image',
+      'png': 'fas fa-file-image',
+      'txt': 'fas fa-file-alt'
+    };
+    
+    return iconMap[fileType.toLowerCase()] || 'fas fa-file';
+  };
+  
+  const fetchRoadmapProgress = async () => {
+    try {
+      setSavedRoadmapsLoading(true);
+      const response = await axios.get('/roadmaps/progress');
+      
+      if (response.data && response.data.progressData) {
+        setRoadmapProgress(response.data.progressData);
+      }
+    } catch (err) {
+      console.error("Error fetching roadmap progress:", err);
+    } finally {
+      setSavedRoadmapsLoading(false);
     }
   };
 
@@ -500,122 +649,6 @@ function ProfilePage() {
     });
   };
 
-  const deleteDocument = async (documentId) => {
-    if (window.confirm('Are you sure you want to delete this document?')) {
-      try {
-        const response = await axios.delete(`/auth/documents/${documentId}`);
-        if (response.data && response.data.success) {
-          // Remove document from state
-          setDocuments(prev => prev.filter(doc => doc.id !== documentId));
-          // Show success message
-          setError({
-            type: 'success',
-            message: 'Document deleted successfully!'
-          });
-          
-          setTimeout(() => setError(null), 3000);
-        }
-      } catch (err) {
-        console.error("Error deleting document:", err);
-        setError({
-          type: 'error',
-          message: 'Failed to delete document. Please try again.'
-        });
-      }
-    }
-  };
-
-  // Fetch roadmap progress for all saved roadmaps
-  const fetchRoadmapProgress = async () => {
-    if (!profileData.savedRoadmaps || profileData.savedRoadmaps.length === 0) return;
-    
-    try {
-      setSavedRoadmapsLoading(true);
-      const response = await axios.get("/roadmap/progress");
-      
-      if (response.data && response.data.progress) {
-        // Convert array to object with roadmapId as key for easier access
-        const progressMap = {};
-        response.data.progress.forEach(item => {
-          // Add more detailed tracking information
-          progressMap[item.roadmapId] = {
-            completedCount: item.completedResources.length,
-            totalCount: item.totalResources,
-            percentage: item.totalResources > 0 
-              ? Math.round((item.completedResources.length / item.totalResources) * 100) 
-              : 0,
-            completedResources: item.completedResources,
-            lastUpdated: item.lastUpdated || null,
-            // Calculate estimated completion time based on progress and time elapsed
-            estimatedCompletion: calculateEstimatedCompletion(
-              item.completedResources.length, 
-              item.totalResources
-            )
-          };
-        });
-        
-        setRoadmapProgress(progressMap);
-      }
-    } catch (err) {
-      console.error("Error fetching roadmap progress:", err);
-      // Don't set error since this is not critical functionality
-    } finally {
-      setSavedRoadmapsLoading(false);
-    }
-  };
-  
-  // Helper function to calculate estimated completion time
-  const calculateEstimatedCompletion = (completed, total) => {
-    if (completed === 0 || total === 0 || completed === total) return null;
-    
-    // Assuming average pace is 1 resource per day
-    const remainingResources = total - completed;
-    const daysToComplete = remainingResources;
-    
-    // Calculate future date
-    const completionDate = new Date();
-    completionDate.setDate(completionDate.getDate() + daysToComplete);
-    
-    return completionDate;
-  };
-  
-  // Format an estimated completion date
-  const formatEstimatedCompletion = (date) => {
-    if (!date) return null;
-    
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return date.toLocaleDateString(undefined, options);
-  };
-  
-  // Calculate days until estimated completion
-  const getDaysUntilCompletion = (date) => {
-    if (!date) return null;
-    
-    const today = new Date();
-    const diffTime = Math.abs(date - today);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays;
-  };
-  
-  // Get a status label based on progress percentage
-  const getProgressStatus = (percentage) => {
-    if (percentage === 100) return "Completed";
-    if (percentage >= 75) return "Almost there";
-    if (percentage >= 50) return "Good progress";
-    if (percentage >= 25) return "In progress";
-    return "Just started";
-  };
-  
-  // Get a color for progress bar based on percentage
-  const getProgressColor = (percentage) => {
-    if (percentage >= 80) return "#4caf50"; // Green
-    if (percentage >= 60) return "#8bc34a"; // Light green
-    if (percentage >= 40) return "#ffeb3b"; // Yellow
-    if (percentage >= 20) return "#ff9800"; // Orange
-    return "#f44336"; // Red
-  };
-
   // Fetch roadmap progress after profile data is loaded
   useEffect(() => {
     if (profileData && profileData.savedRoadmaps && profileData.savedRoadmaps.length > 0) {
@@ -650,14 +683,14 @@ function ProfilePage() {
               />
             )}
             <div className="edit-actions">
-              <button onClick={() => saveEdit(field)} className="save-btn" title="Save">
-                <i className="fas fa-check"></i>
+              <button onClick={() => saveEdit(field)} className="save-btn">
+                <i className="fas fa-check"></i> Save
               </button>
-              <button onClick={cancelEditing} className="cancel-btn" title="Cancel">
-                <i className="fas fa-times"></i>
+              <button onClick={cancelEditing} className="cancel-btn">
+                <i className="fas fa-times"></i> Cancel
               </button>
             </div>
-            <p className="edit-hint">Press Enter to save, Esc to cancel</p>
+            <span className="edit-hint">Press Enter to save, Esc to cancel</span>
           </div>
         ) : (
           <div className="info-value-container">
@@ -667,7 +700,7 @@ function ProfilePage() {
               onClick={() => startEditing(field, value)}
               title="Edit"
             >
-              <i className="fas fa-edit"></i>
+              <i className="fas fa-edit"></i> Edit
             </button>
           </div>
         )}
@@ -716,121 +749,77 @@ function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="profile-page-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
+      <>
+        <Navbar />
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading profile data...</p>
+        </div>
+        <Footer />
+      </>
     );
   }
 
   if (error && error.type === 'error') {
     return (
-      <div className="profile-page-container">
-        <div className="error-message">{error.message}</div>
-      </div>
+      <>
+        <Navbar />
+        <div className="loading-container">
+          <div className="error-message">{error.message || error}</div>
+          <button className="resume-preview-btn" onClick={() => navigate('/')}>
+            <i className="fas fa-home"></i> Go Home
+          </button>
+        </div>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className="profile-page-container" style={{ minHeight: '100vh', overflowY: 'auto' }}>
-      {/* Custom navbar without Link components to avoid navigation issues */}
-      <nav className="navbar navbar-expand-lg fixed-top">
-        <div className="container-fluid">
-          <span className="navbar-brand me-auto" onClick={() => handleNavigation('/home')} style={{cursor: 'pointer'}}>CareerConnect</span>
-          <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar">
-            <div className="offcanvas-header">
-              <h5 className="offcanvas-title">Career Connect</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div className="offcanvas-body">
-              <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/home')} style={{cursor: 'pointer'}}>Home</span>
-                </li>
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/companylisting')} style={{cursor: 'pointer'}}>Company Listing</span>
-                </li>
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/scheduledInterview')} style={{cursor: 'pointer'}}>Scheduled Interviews</span>
-                </li>
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/faq')} style={{cursor: 'pointer'}}>Placement Material</span>
-                </li>
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/interviewexperience')} style={{cursor: 'pointer'}}>Interview Experience</span>
-                </li>
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/profile')} style={{cursor: 'pointer'}}>Profile</span>
-                </li>
-                <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => {
-                    localStorage.removeItem('isAuthenticated');
-                    localStorage.removeItem('userRole');
-                    localStorage.removeItem('userEmail');
-                    localStorage.removeItem('userId');
-                    handleNavigation('/');
-                  }} style={{cursor: 'pointer'}}>Logout</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="profile-content" style={{ paddingTop: '120px', minHeight: '100vh', overflowY: 'auto' }}>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          style={{ display: 'none' }} 
-          accept="image/*" 
-          onChange={handleFileUpload} 
+    <>
+      <Navbar />
+      <div className="profile-page-container">
+        {/* Hidden file input for profile picture upload */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          onChange={handleFileUpload}
+          accept="image/*"
         />
-        <input 
-          type="file" 
-          ref={documentInputRef} 
-          style={{ display: 'none' }} 
-          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png" 
-          onChange={uploadDocument}
+        
+        {/* Hidden file input for document upload */}
+        <input
+          type="file"
+          ref={documentInputRef}
+          style={{ display: 'none' }}
+          onChange={handleDocumentUpload}
+          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
           multiple
         />
         
-        <button className="dark-mode-toggle" onClick={toggleDarkMode} title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-          {darkMode ? (
-            <i className="fas fa-sun"></i>
-          ) : (
-            <i className="fas fa-moon"></i>
-          )}
-        </button>
-        
-        {error && error.type === 'success' && (
-          <div className="success-notification">
-            <i className="fas fa-check-circle"></i> {error.message}
-          </div>
-        )}
-        
-        <div className="profile-header">
-          <div className="profile-avatar-section">
+        {/* Left Sidebar */}
+        <div className="profile-sidebar">
+          {/* Profile Avatar Container */}
+          <div className="profile-avatar-container">
             <div className="profile-avatar" onClick={handleProfilePictureUpload}>
               {profileData.profilePicture ? (
                 <img src={profileData.profilePicture} alt={profileData.name} />
               ) : (
                 <div className="profile-avatar-placeholder">
-                  {profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}
+                  {profileData.name ? profileData.name.charAt(0).toUpperCase() : 'S'}
                 </div>
               )}
-              <div className="profile-avatar-overlay">
-                <i className="fas fa-camera"></i>
-              </div>
             </div>
+            
             <div className="profile-name-details">
-            <h2>{profileData.name}</h2>
-              <p className="profile-field">{profileData.stream || 'Not specified'}</p>
-              <p className="profile-id">ID: {profileData.prn}</p>
+              <h2>{profileData.name || 'Shaurya Mehta'}</h2>
+              <p className="profile-field">{profileData.stream || 'Computer Engineering'}</p>
+              <p className="profile-id">ID: {profileData.prn || ''}</p>
             </div>
-            </div>
-
+          </div>
+          
+          {/* Profile Completion Section */}
           <div className="profile-completion-section">
             <h3>Profile Completion</h3>
             <div className="progress-container">
@@ -838,17 +827,19 @@ function ProfilePage() {
                 className="progress-bar" 
                 style={{ width: `${completionPercentage}%` }}
               ></div>
-              <span className="progress-text">{completionPercentage}%</span>
+            </div>
+            <div className="progress-text">
+              <span>Progress</span>
+              <span>{completionPercentage}%</span>
             </div>
             <button className="resume-preview-btn" onClick={generateResumePDF}>
               <i className="fas fa-file-pdf"></i> Preview Resume
             </button>
           </div>
-        </div>
-        
-        <div className="profile-content">
-          <div className="profile-sidebar">
-            <ul className="sidebar-nav">
+          
+          {/* Navigation Menu */}
+          <div className="sidebar-nav">
+            <ul>
               <li 
                 className={activeSection === 'personal' ? 'active' : ''}
                 onClick={() => setActiveSection('personal')}
@@ -881,500 +872,303 @@ function ProfilePage() {
               </li>
             </ul>
           </div>
-          
-          <div className="profile-main-content">
+        </div>
+        
+        {/* Main Content Area */}
+        <div className="profile-main-content">
+          {/* Edit Profile Button */}
+          <button className="edit-profile-btn" onClick={handleEdit}>
+            <i className="fas fa-user-edit"></i> Edit Profile
+          </button>
+
+          {/* Content sections all wrapped in profile-content-wrapper */}
+          <div className="profile-content-wrapper">
+            {/* Personal Information Section */}
             {activeSection === 'personal' && (
               <div className="content-section">
-                <h3 className="section-title">Personal Information</h3>
+                <h3 className="section-title">
+                  <i className="fas fa-user"></i> Personal Information
+                </h3>
                 
                 <div className="info-grid">
-                  {renderEditableField('Full Name', 'name', profileData.name)}
+                  <div className="info-item">
+                    <span className="info-label">Full Name</span>
+                    <span className="info-value">{profileData.name || 'Shaurya Mehta'}</span>
+                  </div>
                   
                   <div className="info-item">
                     <span className="info-label">Email</span>
-                    <div className="info-value-container">
-                      <span className="info-value">{profileData.email}</span>
-                    </div>
+                    <span className="info-value">{profileData.email || 'student@careerconnect.com'}</span>
                   </div>
                   
-                  {renderEditableField('Contact Number', 'contactNumber', profileData.contactNumber, 'tel')}
+                  <div className="info-item">
+                    <span className="info-label">Contact Number</span>
+                    <span className="info-value">{profileData.contactNumber || '9781238322'}</span>
+                  </div>
                   
                   <div className="info-item">
                     <span className="info-label">Gender</span>
-                    <span className="info-value">{profileData.gender || 'Not specified'}</span>
+                    <span className="info-value">{profileData.gender || 'Female'}</span>
                   </div>
                   
                   <div className="info-item">
                     <span className="info-label">Date of Birth</span>
-                    <span className="info-value">{profileData.dob || 'Not specified'}</span>
+                    <span className="info-value">{profileData.dob || 'Thu Dec 05 2002'}</span>
+                    <div className="info-value" style={{fontSize: '0.85rem', color: '#888'}}>
+                      {profileData.dobTimezone || '07:28:04 GMT+0530 (India Standard Time)'}
+                    </div>
                   </div>
                   
-                  {profileData.socialMedia && (
-                    <>
-                      {renderEditableField('LinkedIn', 'socialMedia.linkedin', 
-                        profileData.socialMedia.linkedin, 'url')}
-                      
-                      {renderEditableField('GitHub', 'socialMedia.github', 
-                        profileData.socialMedia.github, 'url')}
-                        
-                      {renderEditableField('Personal Website', 'socialMedia.website', 
-                        profileData.socialMedia.website, 'url')}
-                    </>
-                  )}
+                  <div className="info-item">
+                    <span className="info-label">LinkedIn</span>
+                    <span className="info-value">
+                      {profileData.socialMedia?.linkedin || 'Not specified'}
+                    </span>
+                  </div>
+                  
+                  <div className="info-item">
+                    <span className="info-label">GitHub</span>
+                    <span className="info-value">
+                      {profileData.socialMedia?.github || 'Not specified'}
+                    </span>
+                  </div>
+                  
+                  <div className="info-item">
+                    <span className="info-label">Personal Website</span>
+                    <span className="info-value">
+                      {profileData.socialMedia?.website || 'Not specified'}
+                    </span>
+                  </div>
                   
                   <div className="info-item full-width">
                     <span className="info-label">Hobbies & Interests</span>
-                    {isEditing && editField === 'hobbies' ? (
-                      <div className="edit-field">
-                        <textarea 
-                          value={tempEditValue} 
-                          onChange={(e) => setTempEditValue(e.target.value)}
-                          className="edit-textarea"
-                          rows={3}
-                          placeholder="Enter hobbies separated by commas (e.g. Reading, Traveling, Photography)"
-                        />
-                        <p className="edit-hint">Enter hobbies separated by commas</p>
-                        <div className="edit-actions">
-                          <button 
-                            onClick={() => {
-                              const hobbiesArray = tempEditValue
-                                .split(',')
-                                .map(h => h.trim())
-                                .filter(h => h);
-                              
-                              setTempEditValue(hobbiesArray);
-                              saveEdit('hobbies');
-                            }} 
-                            className="save-btn"
-                          >
-                            <i className="fas fa-check"></i>
-                          </button>
-                          <button onClick={cancelEditing} className="cancel-btn">
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="info-value-container">
-                        {profileData.hobbies && profileData.hobbies.length > 0 ? (
-                          <div className="tags-container">
-                            {profileData.hobbies.map((hobby, index) => (
-                              <span key={index} className="hobby-tag">{hobby}</span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="info-value no-data">No hobbies specified</span>
-                        )}
-                        <button 
-                          className="edit-btn" 
-                          onClick={() => startEditing('hobbies', 
-                            profileData.hobbies ? profileData.hobbies.join(', ') : '')}
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                      </div>
-                    )}
+                    <span className="info-value">
+                      {profileData.hobbies && profileData.hobbies.length > 0 ? 
+                        profileData.hobbies.join(', ') : 'No hobbies specified'}
+                    </span>
                   </div>
                 </div>
               </div>
             )}
             
+            {/* Academic Information Section */}
             {activeSection === 'academic' && (
               <div className="content-section">
-                <h3 className="section-title">Academic Information</h3>
+                <h3 className="section-title">
+                  <i className="fas fa-graduation-cap"></i> Academic Information
+                </h3>
                 
                 <div className="info-grid">
                   <div className="info-item">
                     <span className="info-label">PRN</span>
-                    <span className="info-value">{profileData.prn}</span>
+                    <span className="info-value">{profileData.prn || 'Not specified'}</span>
                   </div>
                   
                   <div className="info-item">
                     <span className="info-label">Roll No</span>
-                    <span className="info-value">{profileData.rollNo}</span>
+                    <span className="info-value">{profileData.rollNo || 'Not specified'}</span>
                   </div>
                   
                   <div className="info-item">
                     <span className="info-label">Stream</span>
-                    <span className="info-value">{profileData.stream}</span>
+                    <span className="info-value">{profileData.stream || 'Computer Engineering'}</span>
                   </div>
 
                   <div className="info-item">
                     <span className="info-label">10th Percentage</span>
-                    <span className="info-value">{profileData.tenthPercentage}%</span>
+                    <span className="info-value">{profileData.tenthPercentage ? `${profileData.tenthPercentage}%` : 'Not specified'}</span>
                   </div>
 
                   <div className="info-item">
                     <span className="info-label">10th School</span>
-                    <span className="info-value">{profileData.tenthSchool}</span>
+                    <span className="info-value">{profileData.tenthSchool || 'Not specified'}</span>
                   </div>
 
                   <div className="info-item">
                     <span className="info-label">12th Percentage</span>
-                    <span className="info-value">{profileData.twelfthPercentage}%</span>
+                    <span className="info-value">{profileData.twelfthPercentage ? `${profileData.twelfthPercentage}%` : 'Not specified'}</span>
                   </div>
 
                   <div className="info-item">
                     <span className="info-label">12th College</span>
-                    <span className="info-value">{profileData.twelfthCollege}</span>
+                    <span className="info-value">{profileData.twelfthCollege || 'Not specified'}</span>
                   </div>
-
-                  {profileData.stream === "Computer Engineering" && (
-                    <div className="info-item">
-                      <span className="info-label">Graduation CGPA</span>
-                      <span className="info-value">{profileData.graduationCGPA}</span>
-                    </div>
-                  )}
+                  
+                  <div className="info-item">
+                    <span className="info-label">CGPA</span>
+                    <span className="info-value">{profileData.cgpa || 'Not specified'}</span>
+                  </div>
+                  
+                  <div className="info-item">
+                    <span className="info-label">Current Year</span>
+                    <span className="info-value">{profileData.currentYear || 'Not specified'}</span>
+                  </div>
+                  
+                  <div className="info-item">
+                    <span className="info-label">Current Semester</span>
+                    <span className="info-value">{profileData.currentSemester || 'Not specified'}</span>
+                  </div>
                 </div>
               </div>
             )}
             
+            {/* Saved Roadmaps Section */}
             {activeSection === 'roadmaps' && (
               <div className="content-section">
                 <h3 className="section-title">
-                  <i className="fas fa-bookmark"></i> Saved Roadmaps
-                  <span className="roadmap-count">
-                    {profileData.savedRoadmaps ? profileData.savedRoadmaps.length : 0} roadmaps
-                  </span>
+                  <i className="fas fa-map"></i> Saved Roadmaps
                 </h3>
                 
                 {savedRoadmapsLoading ? (
                   <div className="section-loading">
                     <div className="loading-spinner-small"></div>
-                    <p>Loading your saved roadmaps...</p>
+                    <p>Loading your roadmaps...</p>
                   </div>
                 ) : profileData.savedRoadmaps && profileData.savedRoadmaps.length > 0 ? (
-                  <div className="roadmaps-container">
-                    {profileData.savedRoadmaps.map(roadmap => (
-                      <div key={roadmap._id} className="roadmap-card">
-                        <div className="roadmap-header">
-                          <h4 className="roadmap-title">
-                            {roadmap.title || `${roadmap.jobProfile} Roadmap`}
-                          </h4>
-                          {roadmap.companyId && roadmap.companyId.name && (
-                            <span className="roadmap-company">
-                              <i className="fas fa-building"></i> {roadmap.companyId.name}
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="roadmap-description">
-                          {roadmap.description || `A learning roadmap for ${roadmap.jobProfile || 'career'} roles.`}
-                        </p>
-                        
-                        {roadmapProgress[roadmap._id] && (
-                          <div className="roadmap-progress">
-                            <div className="progress-label">
-                              <span>Progress</span>
-                              <span className="progress-percentage">{roadmapProgress[roadmap._id].percentage}%</span>
-                            </div>
-                            <div className="progress-container">
-                              <div 
-                                className="progress-bar" 
-                                style={{ 
-                                  width: `${roadmapProgress[roadmap._id].percentage}%`,
-                                  backgroundColor: getProgressColor(roadmapProgress[roadmap._id].percentage)
-                                }}
-                              ></div>
-                            </div>
-                            <div className="progress-stats">
-                              <span>{roadmapProgress[roadmap._id].completedCount}/{roadmapProgress[roadmap._id].totalCount} resources completed</span>
-                              <span className="progress-status">{getProgressStatus(roadmapProgress[roadmap._id].percentage)}</span>
-                            </div>
-                            
-                            {/* Estimated completion */}
-                            {roadmapProgress[roadmap._id].estimatedCompletion && 
-                             roadmapProgress[roadmap._id].percentage < 100 && 
-                             roadmapProgress[roadmap._id].percentage > 0 && (
-                              <div className="completion-estimate">
-                                <i className="far fa-calendar-alt"></i>
-                                <span>Estimated completion: {formatEstimatedCompletion(roadmapProgress[roadmap._id].estimatedCompletion)}</span>
-                                <span className="days-remaining">
-                                  ({getDaysUntilCompletion(roadmapProgress[roadmap._id].estimatedCompletion)} days remaining)
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {roadmap.skills && roadmap.skills.length > 0 && (
-                          <div className="roadmap-skills">
-                            {roadmap.skills.slice(0, 3).map((skill, index) => (
-                              <span key={index} className="roadmap-skill-tag">{skill.skillName}</span>
-                            ))}
-                            {roadmap.skills.length > 3 && (
-                              <span className="roadmap-skill-more">+{roadmap.skills.length - 3} more</span>
-                            )}
-                          </div>
-                        )}
-                        
-                        <div className="roadmap-actions">
-                          <button 
-                            className="roadmap-view-btn" 
-                            onClick={() => navigateToRoadmap(roadmap._id)}
-                          >
-                            <i className="fas fa-eye"></i> View Roadmap
-                          </button>
-                          <button 
-                            className="roadmap-unsave-btn" 
-                            onClick={() => unsaveRoadmap(roadmap._id)}
-                            title="Remove from saved roadmaps"
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
+                  <div className="document-cards">
+                    {profileData.savedRoadmaps.map((roadmap) => (
+                      <div className="document-card" key={roadmap._id || 'roadmap-1'}>
+                        <h4>{roadmap.title || 'Roadmap Title'}</h4>
+                        <p>{roadmap.description || 'Roadmap description'}</p>
+                        <button 
+                          onClick={() => navigateToRoadmap(roadmap._id)}
+                          className="view-btn"
+                        >
+                          View
+                        </button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="no-roadmaps">
-                    <i className="fas fa-map-marked-alt roadmap-placeholder-icon"></i>
+                  <div>
                     <p>You haven't saved any roadmaps yet.</p>
-                    <p className="roadmap-suggestion">Save roadmaps to track your learning journey and keep them organized in one place.</p>
-                    <button 
-                      className="browse-roadmaps-btn" 
-                      onClick={() => navigate('/placement-material')}
-                    >
-                      <i className="fas fa-search"></i> Browse Roadmaps
+                    <button onClick={() => navigate('/placement-material')}>
+                      Browse Roadmaps
                     </button>
                   </div>
                 )}
               </div>
             )}
             
+            {/* Documents Section */}
             {activeSection === 'documents' && (
               <div className="content-section">
-                <h3 className="section-title">Documents</h3>
+                <h3 className="section-title">
+                  <i className="fas fa-file-alt"></i> Documents
+                </h3>
                 
-                <div className="documents-container">
-                  <div className="documents-header">
-                    <div className="search-documents">
-                      <input 
-                        type="text" 
-                        placeholder="Search documents..." 
-                        className="document-search-input" 
-                        value={documentSearchQuery}
-                        onChange={(e) => setDocumentSearchQuery(e.target.value)}
-                      />
-                      <i className="fas fa-search search-icon"></i>
-                    </div>
-                    
-                    <div className="document-filters">
-                      <select 
-                        className="document-filter-select"
-                        value={documentFilter}
-                        onChange={(e) => setDocumentFilter(e.target.value)}
-                      >
-                        <option value="all">All Documents</option>
-                        <option value="pdf">PDF Files</option>
-                        <option value="word">Word Documents</option>
-                        <option value="spreadsheet">Spreadsheets</option>
-                        <option value="presentation">Presentations</option>
-                        <option value="image">Images</option>
-                      </select>
-                      
-                      <select 
-                        className="document-sort-select"
-                        value={documentSort}
-                        onChange={(e) => setDocumentSort(e.target.value)}
-                      >
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="name-asc">Name (A-Z)</option>
-                        <option value="name-desc">Name (Z-A)</option>
-                      </select>
-                    </div>
-                    
-                    <button 
-                      className="upload-document-btn"
-                      onClick={() => documentInputRef.current.click()}
-                      disabled={documentUploadLoading}
-                    >
-                      {documentUploadLoading ? (
-                        <>
-                          <i className="fas fa-spinner fa-spin"></i> Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <i className="fas fa-plus"></i> Upload Document
-                        </>
-                      )}
-                    </button>
-                  </div>
+                <div>
+                  <button className="upload-document-btn" onClick={triggerDocumentUpload}>
+                    <i className="fas fa-upload"></i> Upload Document
+                  </button>
                   
-                  <div 
-                    className={`document-dropzone ${isDragging ? 'drag-active' : ''}`}
-                    onDragEnter={handleDragIn}
-                    onDragLeave={handleDragOut}
-                    onDragOver={handleDragOver}
-                    onDrop={handleFileDrop}
-                  >
-                    <div className="dropzone-content">
-                      <i className={`fas ${isDragging ? 'fa-file-upload' : 'fa-cloud-upload-alt'}`}></i>
-                      <p>{isDragging ? 'Drop files to upload!' : 'Drag & drop files here'}</p>
-                      <p className="dropzone-hint">or click the upload button above</p>
-                      <p className="dropzone-supported">Supported formats: PDF, Word, Excel, PowerPoint, Images</p>
-                    </div>
-                  </div>
-                  
-                  {documents.length > 0 && (
-                    <div className="document-stats">
-                      <span>Total documents: {documents.length}</span>
-                      <span>Showing: {getFilteredAndSortedDocuments().length}</span>
+                  {documentUploadLoading && (
+                    <div className="section-loading">
+                      <div className="loading-spinner-small"></div>
+                      <p>Uploading document...</p>
                     </div>
                   )}
                   
-                  <div className="document-cards">
-                    {profileData.resume && (
-                      <div className="document-card">
-                        <div className="document-icon">
-                          <i className="fas fa-file-pdf"></i>
+                  {documents.length > 0 ? (
+                    <div className="document-cards">
+                      {documents.map((doc) => (
+                        <div className="document-card" key={doc._id || doc.id || 'doc-1'}>
+                          <h4>{doc.name || doc.filename || 'Document'}</h4>
+                          <p>{doc.fileType || doc.contentType || 'Document type'}</p>
+                          <div className="document-card-buttons">
+                            <button 
+                              className="view-btn"
+                              onClick={() => {
+                                if (doc.fileUrl) {
+                                  window.open(doc.fileUrl, '_blank');
+                                } else if (doc.path) {
+                                  // Handle server-side path viewing
+                                  window.open(`/auth/documents/view/${doc._id || doc.id}`, '_blank');
+                                }
+                              }}
+                            >
+                              <i className="fas fa-eye"></i> View
+                            </button>
+                            <button 
+                              className="download-btn"
+                              onClick={() => {
+                                if (doc.fileUrl) {
+                                  // For client-side URL download
+                                  const a = document.createElement('a');
+                                  a.href = doc.fileUrl;
+                                  a.download = doc.name || doc.filename || 'document';
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                } else if (doc._id || doc.id) {
+                                  // For server-side document download
+                                  window.open(`/auth/documents/download/${doc._id || doc.id}`, '_blank');
+                                }
+                              }}
+                            >
+                              <i className="fas fa-download"></i> Download
+                            </button>
+                            <button 
+                              className="delete-btn"
+                              onClick={() => handleDeleteDocument(doc._id || doc.id)}
+                            >
+                              <i className="fas fa-trash-alt"></i> Delete
+                            </button>
+                          </div>
                         </div>
-                        <div className="document-details">
-                          <h4 className="document-name">{profileData.resume.filename}</h4>
-                          <p className="document-type">{profileData.resume.contentType}</p>
-                          <p className="document-label">Resume</p>
-                        </div>
-                        <div className="document-actions">
-                          <a 
-                            href={`/profile/resume/${profileData._id}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="document-action-btn view-btn"
-                            title="View"
-                          >
-                            <i className="fas fa-eye"></i>
-                          </a>
-                          <a 
-                            href={`/profile/resume/${profileData._id}?download=true`} 
-                            className="document-action-btn download-btn"
-                            title="Download"
-                          >
-                            <i className="fas fa-download"></i>
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {getFilteredAndSortedDocuments().map(doc => (
-                      <div key={doc.id} className="document-card">
-                        <div className="document-icon">
-                          {doc.contentType.includes('pdf') ? (
-                            <i className="fas fa-file-pdf"></i>
-                          ) : doc.contentType.includes('word') ? (
-                            <i className="fas fa-file-word"></i>
-                          ) : doc.contentType.includes('sheet') || doc.contentType.includes('excel') ? (
-                            <i className="fas fa-file-excel"></i>
-                          ) : doc.contentType.includes('presentation') || doc.contentType.includes('powerpoint') ? (
-                            <i className="fas fa-file-powerpoint"></i>
-                          ) : doc.contentType.includes('image') ? (
-                            <i className="fas fa-file-image"></i>
-                          ) : (
-                            <i className="fas fa-file-alt"></i>
-                          )}
-                        </div>
-                        <div className="document-details">
-                          <h4 className="document-name">{doc.filename}</h4>
-                          <p className="document-type">{doc.contentType}</p>
-                          <p className="document-date">{new Date(doc.uploadDate).toLocaleDateString()}</p>
-                        </div>
-                        <div className="document-actions">
-                          <a 
-                            href={`/auth/documents/${doc.id}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="document-action-btn view-btn"
-                            title="View"
-                          >
-                            <i className="fas fa-eye"></i>
-                          </a>
-                          <a 
-                            href={`/auth/documents/${doc.id}`} 
-                            download
-                            className="document-action-btn download-btn"
-                            title="Download"
-                          >
-                            <i className="fas fa-download"></i>
-                          </a>
-                          <button 
-                            className="document-action-btn delete-btn"
-                            onClick={() => deleteDocument(doc.id)}
-                            title="Delete"
-                          >
-                            <i className="fas fa-trash-alt"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {documents.length > 0 && getFilteredAndSortedDocuments().length === 0 && (
-                    <div className="no-search-results">
-                      <p>No documents match your search criteria.</p>
-                      <button 
-                        className="clear-search-btn"
-                        onClick={() => {
-                          setDocumentSearchQuery('');
-                          setDocumentFilter('all');
-                        }}
-                      >
-                        <i className="fas fa-times"></i> Clear Search
-                      </button>
+                      ))}
                     </div>
-                  )}
-                  
-                  {(!profileData.resume && documents.length === 0) && (
-                    <div className="no-documents">
-                      <p>No documents uploaded yet.</p>
-                      <button 
-                        className="upload-first-document-btn"
-                        onClick={() => documentInputRef.current.click()}
-                      >
-                        <i className="fas fa-cloud-upload-alt"></i> Upload Your First Document
-                      </button>
-                    </div>
+                  ) : (
+                    <p>No documents uploaded yet</p>
                   )}
                 </div>
               </div>
             )}
             
+            {/* Placement Status Section */}
             {activeSection === 'placement' && (
               <div className="content-section">
-                <h3 className="section-title">Placement Status</h3>
+                <h3 className="section-title">
+                  <i className="fas fa-building"></i> Placement Status
+                </h3>
                 
-                {profileData.placementStatus ? (
-                  <div className="placement-status-container">
-                    <div className="status-badge">
-                      <span className={`status-indicator ${profileData.placementStatus.toLowerCase()}`}>
-                        {profileData.placementStatus}
+                <div className="info-grid">
+                  <div className="info-item">
+                    <span className="info-label">Status</span>
+                    <span className="info-value">
+                      <span className={`status-indicator ${(profileData.placementStatus || "").toLowerCase()}`}>
+                        {profileData.placementStatus || "Not specified"}
                       </span>
-                    </div>
-                    
-                    {profileData.companyPlaced && (
-                      <div className="placement-company">
-                        <h4 className="company-label">Company Placed</h4>
-                        <p className="company-name">{profileData.companyPlaced}</p>
-                      </div>
-                    )}
+                    </span>
                   </div>
-                ) : (
-                  <div className="no-placement-status">
-                    <p>Your placement status has not been updated yet.</p>
-                    <p>Please check back later or contact the placement department.</p>
+                  
+                  <div className="info-item">
+                    <span className="info-label">Company</span>
+                    <span className="info-value">{profileData.companyPlaced || 'Not specified'}</span>
                   </div>
-                )}
+                  
+                  <div className="info-item">
+                    <span className="info-label">Package</span>
+                    <span className="info-value">{profileData.package ? `₹${profileData.package} LPA` : 'Not specified'}</span>
+                  </div>
+                  
+                  <div className="info-item">
+                    <span className="info-label">Position</span>
+                    <span className="info-value">{profileData.position || 'Not specified'}</span>
+                  </div>
+                  
+                  <div className="info-item">
+                    <span className="info-label">Location</span>
+                    <span className="info-value">{profileData.location || 'Not specified'}</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
-          </div>
-          
-        <div className="profile-footer">
-          <button className="edit-profile-btn" onClick={handleEdit}>
-            <i className="fas fa-user-edit"></i> Edit Profile
-          </button>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
 

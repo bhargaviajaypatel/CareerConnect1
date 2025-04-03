@@ -164,7 +164,7 @@ function InterviewExperience() {
                   <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/scheduledInterview')} style={{cursor: 'pointer'}}>Scheduled Interviews</span>
                 </li>
                 <li className="nav-item">
-                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/faq')} style={{cursor: 'pointer'}}>Placement Material</span>
+                  <span className="nav-link mx-lg-2" onClick={() => handleNavigation('/placement-material')} style={{cursor: 'pointer'}}>Placement Material</span>
                 </li>
                 <li className="nav-item">
                   <span className="nav-link mx-lg-2 active" onClick={() => handleNavigation('/interviewexperience')} style={{cursor: 'pointer'}}>Interview Experience</span>

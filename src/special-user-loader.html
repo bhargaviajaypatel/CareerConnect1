@@ -1,0 +1,52 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Special User Loader</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .button { display: inline-block; background: #6b46c1; color: white; padding: 10px 20px; 
+                 text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 4px; overflow: auto; }
+        h1 { color: #6b46c1; }
+      </style>
+    </head>
+    <body>
+      <h1>Special User Test Loader</h1>
+      <p>This page will set up the necessary localStorage values to simulate the special test user.</p>
+      
+      <h2>User Details</h2>
+      <pre>
+User ID: 67ed87b6b52438e0ae59707f
+Email: test@example.com
+Name: Test User
+Status: Placed
+Company: IBM
+Package: 24
+Position: Software Engineer
+Location: Bangalore
+      </pre>
+      
+      <h2>Instructions</h2>
+      <p>Click the button below to load the Profile page as the special user:</p>
+      
+      <a href="http://localhost:3000/profile" class="button" id="loadProfile">Load Profile Page</a>
+      
+      <script>
+        document.getElementById('loadProfile').addEventListener('click', function(e) {
+          // Set localStorage values
+          localStorage.setItem('userId', '67ed87b6b52438e0ae59707f');
+          localStorage.setItem('userEmail', 'test@example.com');
+          localStorage.setItem('isAuthenticated', 'true');
+          
+          console.log('LocalStorage values set successfully!');
+          console.log('userId:', localStorage.getItem('userId'));
+          console.log('userEmail:', localStorage.getItem('userEmail'));
+          console.log('isAuthenticated:', localStorage.getItem('isAuthenticated'));
+          
+          // Continue with navigation
+        });
+      </script>
+    </body>
+    </html>
+    

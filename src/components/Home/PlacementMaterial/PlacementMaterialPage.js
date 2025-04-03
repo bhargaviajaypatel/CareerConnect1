@@ -153,9 +153,35 @@ function PlacementMaterialPage() {
         // Start with loading sample data to provide immediate content
         loadSampleCompanies();
         
-        const verifyRes = await axios.get("/auth/verify");
-        if (!verifyRes.data.status) {
-          navigate("/");
+        // Get the email from localStorage
+        const userEmail = localStorage.getItem('userEmail');
+        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+        
+        if (!isAuthenticated || !userEmail) {
+          console.log("Not authenticated, redirecting to login");
+          navigate("/login");
+          return;
+        }
+        
+        const verifyRes = await axios.get("/auth/verify", {
+          params: { email: userEmail }
+        });
+        
+        console.log("Verify response:", verifyRes.data);
+        
+        if (verifyRes.data === "Invalid") {
+          console.log("Authentication failed, redirecting to login");
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userId');
+          navigate("/login");
+          return;
+        }
+        
+        if (verifyRes.data === "Admin") {
+          console.log("User is admin, redirecting to admin page");
+          navigate("/admin");
           return;
         }
         
@@ -168,7 +194,7 @@ function PlacementMaterialPage() {
         console.error("Authentication error:", err);
         setError("Authentication failed. Please login again.");
         setLoading(false);
-        navigate("/");
+        navigate("/login");
       }
     };
     verifyAndFetchData();

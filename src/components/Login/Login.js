@@ -9,7 +9,6 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [userData, setUserData] = useState(null);
-  const [mongoDbStatus, setMongoDbStatus] = useState("Checking connection...");
   const [isLoading, setIsLoading] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(null);
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ function Login() {
     }
   }, [redirectCountdown, navigate]);
   
-  // Check authentication status and MongoDB connection on component mount
+  // Check authentication status on component mount
   useEffect(() => {
     // Clear existing auth data if we're on login page
     if (window.location.pathname === '/login') {
@@ -62,20 +61,6 @@ function Login() {
       }
       return;
     }
-
-    // Check MongoDB connection
-    axios.get("/auth/all")
-      .then(response => {
-        if (response.data && response.data.length > 0) {
-          setMongoDbStatus("Connected - Found " + response.data.length + " users");
-        } else {
-          setMongoDbStatus("Connected - No users found");
-        }
-      })
-      .catch(err => {
-        console.error("MongoDB connection error:", err);
-        setMongoDbStatus("Error connecting: " + (err.message || "Network error"));
-      });
   }, [navigate]);
   
   const handleSubmit = (e) => {
@@ -187,131 +172,25 @@ function Login() {
       });
   };
 
-  // Function for direct login (for testing)
-  const handleDirectLogin = (emailToUse, roleType) => {
-    setIsLoading(true);
-    
-    // Clear any previous auth data
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userId');
-    
-    // Set new auth data
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userRole', roleType);
-    localStorage.setItem('userEmail', emailToUse);
-    
-    setSuccessMessage(`Direct login as ${roleType.toLowerCase()}. Redirecting...`);
-    
-    // Fetch user data for the demo account
-    fetchUserByEmail(emailToUse);
-    
-    // Try multiple navigation approaches
-    setTimeout(() => {
-      try {
-        console.log("Attempting navigation with React Router for demo account");
-        if (roleType === "Admin") {
-          navigate("/admin");
-          
-          // As a backup, also try direct browser navigation
-          setTimeout(() => {
-            console.log("Forcing direct browser navigation to /admin for demo account");
-            window.location.href = "/admin";
-          }, 500);
-        } else {
-          navigate("/home");
-          
-          // As a backup, also try direct browser navigation
-          setTimeout(() => {
-            console.log("Forcing direct browser navigation to /home for demo account");
-            window.location.href = "/home";
-          }, 500);
-        }
-      } catch (error) {
-        console.error("Navigation error for demo account:", error);
-        // Fallback to direct browser navigation
-        window.location.href = roleType === "Admin" ? "/admin" : "/home";
-      }
-    }, 1000);
-  };
-  
-  // Special function for Bhargavi's account
-  const handleBhargaviLogin = () => {
-    setIsLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("Starting login process for Bhargavi's account...");
-    
-    // Clear any previous auth data
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userId');
-    
-    const loginData = { 
-      email: "bhargavi04092003@gmail.com", 
-      password: "Nivedit@123" 
-    };
-    
-    console.log("Sending direct login request for Bhargavi's account");
-    
-    // Direct API call with specific credentials
-    axios.post("/auth", loginData)
-      .then((response) => {
-        console.log("Bhargavi login response:", response.data);
-        
-        if (response.data === "Success" || response.data === "Admin") {
-          // Store authentication state
-          localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('userRole', response.data);
-          localStorage.setItem('userEmail', "bhargavi04092003@gmail.com");
-          localStorage.setItem('userId', "67e76c9a16d66db9c396691b");
-          
-          // Success message
-          setSuccessMessage(`Login successful for Bhargavi! Redirecting now...`);
-          console.log("Authentication state set, userId:", localStorage.getItem('userId'));
-          
-          // Try multiple navigation approaches
-          setTimeout(() => {
-            try {
-              console.log("Attempting navigation with React Router");
-              navigate("/home");
-              
-              // As a backup, also try direct browser navigation
-              setTimeout(() => {
-                console.log("Forcing direct browser navigation to /home");
-                window.location.href = "/home";
-              }, 500);
-            } catch (error) {
-              console.error("Navigation error:", error);
-              // Fallback to direct browser navigation
-              window.location.href = "/home";
-            }
-          }, 1000);
-        } else {
-          setErrorMessage("Login failed for Bhargavi's account. Server returned: " + response.data);
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error("Bhargavi login error:", err);
-        setErrorMessage("Login error for Bhargavi's account: " + (err.message || "Unknown error"));
-        setIsLoading(false);
-      });
-  };
-
   return (
-    <div className="container1">
-      <h1>Login to Portal</h1>
-      <div className="mongodb-status">MongoDB Status: {mongoDbStatus}</div>
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <h1>Welcome to CareerConnect</h1>
+          <p className="login-subtitle">Your gateway to career opportunities</p>
+        </div>
+        
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       {successMessage && <div className="success-message">{successMessage}</div>}
       {redirectCountdown !== null && (
         <div className="redirect-countdown">Redirecting in {redirectCountdown} seconds...</div>
       )}
-      <form onSubmit={handleSubmit}>
+        
+        <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              <i className="fas fa-envelope"></i> Email
+            </label>
           <input
             type="email"
             id="email"
@@ -324,7 +203,9 @@ function Login() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+            <label htmlFor="password">
+              <i className="fas fa-lock"></i> Password
+            </label>
           <input
             type="password"
             id="password"
@@ -341,52 +222,22 @@ function Login() {
           className="login-btn" 
           disabled={isLoading || redirectCountdown !== null}
         >
-          {isLoading ? "Logging in..." : "LOGIN"}
+            {isLoading ? 
+              <><i className="fas fa-spinner fa-spin"></i> Logging in...</> : 
+              <><i className="fas fa-sign-in-alt"></i> LOGIN</>
+            }
         </button>
       </form>
+        
+        <div className="login-footer">
       <div className="register-link">
         <p>Don't have an account? <a href="/register">REGISTER</a></p>
       </div>
       <div className="forgot-password">
         <a href="/forgotpassword">Forgot Password?</a>
       </div>
-      
-      <div className="demo-accounts">
-        <p>Quick Login:</p>
-        <button 
-          onClick={() => handleDirectLogin("test@example.com", "Success")}
-          className="demo-btn"
-          disabled={isLoading || redirectCountdown !== null}
-        >
-          Student Account
-        </button>
-        <button 
-          onClick={() => handleDirectLogin("admin@example.com", "Admin")}
-          className="demo-btn"
-          disabled={isLoading || redirectCountdown !== null}
-        >
-          Admin Account
-        </button>
       </div>
-      
-      <div className="real-account-login">
-        <button 
-          onClick={handleBhargaviLogin}
-          className="special-btn"
-          disabled={isLoading || redirectCountdown !== null}
-        >
-          Log in as Bhargavi
-        </button>
       </div>
-      
-      {userData && (
-        <div className="user-data">
-          <h3>User Information</h3>
-          <p>Name: {userData.name}</p>
-          <p>Email: {userData.email}</p>
-          <p>Role: {userData.isAdmin ? "Admin" : "Student"}</p>
-        </div>
-      )}
     </div>
   );
 }

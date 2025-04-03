@@ -359,7 +359,7 @@ router.post("/applyCompany/:userId/:companyId", async (req, res) => {
   }
 });
 
-// Endpoint to retrieve scheduled interviews for a user
+// Original endpoint to retrieve scheduled interviews for a user
 router.get("/scheduledInterviews/:userId", async (req, res) => {
   const { userId } = req.params;
 
@@ -374,15 +374,13 @@ router.get("/scheduledInterviews/:userId", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const appliedCompanyIds = user.appliedCompanies;
-    const companies = await Company.find({ _id: { $in: appliedCompanyIds } });
+    // Check if the user has scheduledInterviews field
+    if (!user.scheduledInterviews || !Array.isArray(user.scheduledInterviews)) {
+      return res.json({ scheduledInterviews: [] });
+    }
 
-    const scheduledInterviews = companies.map((company) => ({
-      companyName: company.companyname,
-      interviewDate: company.doi,
-    }));
-
-    return res.json({ scheduledInterviews });
+    // Return the scheduled interviews directly from the user document
+    return res.json({ scheduledInterviews: user.scheduledInterviews });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -448,13 +446,16 @@ router.get('/placementStatus/:userId', async (req, res) => {
     // Get the placement status
     const status = user.placementStatus;
 
-    if (status === 'Placed') {
-      // If the status is placed, get the company name from the user document
-      const companyName = user.companyPlaced;
-      return res.json({ status, companyName });
-    }
+    // Return all placement-related information
+    const placementInfo = {
+      status,
+      companyName: user.companyPlaced || null,
+      package: user.package || null,
+      position: user.position || null,
+      location: user.location || null
+    };
 
-    return res.json({ status });
+    return res.json(placementInfo);
   } catch (error) {
     console.error('Error fetching placement status:', error);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -614,7 +615,7 @@ router.get("/companyApplicants", async (req, res) => {
 // Backend API to update placementStatus
 router.post("/updatePlacementStatus", async (req, res) => {
   try {
-    const { userId, companyId, status } = req.body;
+    const { userId, companyId, status, package: salaryPackage, position, location } = req.body;
     
     // Validate userId format before querying the database
     if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -635,6 +636,17 @@ router.post("/updatePlacementStatus", async (req, res) => {
     }
     user.placementStatus = status;
     user.companyPlaced = company.companyname;
+    
+    // Update additional placement details if provided
+    if (salaryPackage) user.package = salaryPackage;
+    if (position) user.position = position;
+    if (location) user.location = location;
+    
+    // If no specific salary package is provided but company has CTC, use that
+    if (!salaryPackage && company.ctc) {
+      user.package = company.ctc;
+    }
+    
     await user.save();
     res.json({
       message: `Placement status updated to ${status} successfully.`,
@@ -1046,6 +1058,65 @@ router.get("/getUserByEmail", async (req, res) => {
     return res.json(userData);
   } catch (error) {
     console.error("Error fetching user by email:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Alias for currentUser with auth path
+router.get("/auth/currentUser", async (req, res) => {
+  try {
+    // Get userId or email from query parameter
+    const { userId, email } = req.query;
+
+    if (!userId && !email) {
+      return res.status(400).json({ message: "UserId or email is required" });
+    }
+
+    let user;
+    
+    // Try to find by ID first if provided
+    if (userId) {
+      user = await User.findById(userId);
+    } else if (email) {
+      // Otherwise find by email
+      user = await User.findOne({ email });
+    }
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({ user });
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Endpoint to retrieve scheduled interviews with auth prefix for frontend compatibility
+router.get("/auth/scheduledInterviews/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Validate userId format before querying the database
+    if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the user has scheduledInterviews field
+    if (!user.scheduledInterviews || !Array.isArray(user.scheduledInterviews)) {
+      return res.json({ scheduledInterviews: [] });
+    }
+
+    // Return the scheduled interviews directly from the user document
+    return res.json({ scheduledInterviews: user.scheduledInterviews });
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 });

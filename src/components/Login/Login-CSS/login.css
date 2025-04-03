@@ -1,91 +1,307 @@
 /* login.css */
 
 body {
-    background-color: #f0f0f0; /* Set a background color for the entire page */
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
 }
 
+/* Original container1 style kept for other components that might use it */
 .container1 {
-    max-width: 750px; /* Reduce the width of the login form */
-    margin: 50px auto;
-    background: #fff; /* Add a background color behind the login form */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 750px;
+  margin: 50px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* New login page styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E');
+  background-position: bottom;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  margin: 0;
+  color: #4a3f99;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.login-form {
+  margin-bottom: 25px;
+}
+
+/* Form styles */
+.login-form .form-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.login-form label i {
+  margin-right: 6px;
+  color: #6c5ce7;
+}
+
+.login-form .form-control {
+  width: 100%;
+  padding: 15px;
+  padding-left: 15px;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.login-form .form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+}
+
+.login-form .form-control::placeholder {
+  color: #aaa;
+}
+
+.login-form .login-btn {
+  width: 100%;
+  padding: 16px;
+  margin: 15px 0;
+  background: linear-gradient(to right, #6c5ce7, #a363d9);
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-form .login-btn:hover {
+  background: linear-gradient(to right, #a363d9, #6c5ce7);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+}
+
+.login-form .login-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-form .login-btn i {
+  margin-right: 8px;
+}
+
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.login-footer .register-link, 
+.login-footer .forgot-password {
+  font-size: 0.9rem;
+}
+
+.login-footer .register-link a, 
+.login-footer .forgot-password a {
+  color: #6c5ce7;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.login-footer .register-link a:hover, 
+.login-footer .forgot-password a:hover {
+  color: #a363d9;
+  text-decoration: underline;
+}
+
+.login-container .error-message {
+  color: #d63031;
+  background-color: rgba(214, 48, 49, 0.1);
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  border-left: 4px solid #d63031;
+}
+
+.login-container .success-message {
+  color: #00b894;
+  background-color: rgba(0, 184, 148, 0.1);
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  border-left: 4px solid #00b894;
+}
+
+.login-container .redirect-countdown {
+  background-color: rgba(108, 92, 231, 0.1);
+  color: #6c5ce7;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: 30px;
+    margin: 0 20px;
+  }
+  
+  .login-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .login-footer {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+/* Original styles kept for backward compatibility */
 h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 label {
-    font-weight: bold;
-    color: #555;
+  font-weight: bold;
+  color: #555;
 }
 
 .form-control {
-    width: calc(100% - 22px);
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width: calc(100% - 22px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 input[type="submit"],
 button.register-btn,
 button.login-btn {
-    width: calc(100% - 22px);
-    margin-bottom: 10px; /* Add margin to create space between buttons */
-    padding: 10px;
-    background: linear-gradient(to right, #001f3f, #003366); /* Change button color to navy blue */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
+  width: calc(100% - 22px);
+  margin-bottom: 10px;
+  padding: 10px;
+  background: linear-gradient(to right, #001f3f, #003366);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 input[type="submit"]:hover,
 button.register-btn:hover,
 button.login-btn:hover {
-    background: linear-gradient(to right, #003366, #001f3f);
+  background: linear-gradient(to right, #003366, #001f3f);
 }
 
 .link {
-    text-align: center;
-    margin-top: 20px;
-    display: block;
-    color: #007bff;
-    text-decoration: none;
+  text-align: center;
+  margin-top: 20px;
+  display: block;
+  color: #007bff;
+  text-decoration: none;
 }
 
 .link:hover {
-    text-decoration: underline;
-    color: #0056b3;
+  text-decoration: underline;
+  color: #0056b3;
 }
 
 .error-message {
-    color: #d9534f; /* Bootstrap danger color for a more noticeable error message */
-    background-color: #f2dede; /* Background color for error message */
-    padding: 10px;
-    border-radius: 5px;
-    width: 677px;
-    margin-bottom: 15px;
-    border: 1px solid #ebccd1;
+  color: #d9534f;
+  background-color: #f2dede;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ebccd1;
 }
 
 .success-message {
-    color: #3c763d; /* Bootstrap success color */
-    background-color: #dff0d8; /* Background color for success message */
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    border: 1px solid #d6e9c6;
-    font-weight: bold;
+  color: #3c763d;
+  background-color: #dff0d8;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #d6e9c6;
+  font-weight: bold;
 }
 
 .mongodb-status {
@@ -222,12 +438,6 @@ button.login-btn:hover {
   100% { transform: rotate(360deg); }
 }
 
-@keyframes pulse {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
-}
-
 .real-account-login {
   margin-top: 15px;
   text-align: center;
@@ -261,28 +471,4 @@ button.login-btn:hover {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-}
-
-.login-btn {
-  width: 100%;
-  padding: 12px;
-  margin: 15px 0;
-  background: linear-gradient(to right, #001f3f, #003366);
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.login-btn:hover {
-  background: linear-gradient(to right, #003366, #001f3f);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-}
-
-.login-btn:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
 }

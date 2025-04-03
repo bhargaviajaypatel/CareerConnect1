@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, createContext } from "react";
 import Register from "./components/Registeration/Register.js";
 import Login from "./components/Login/Login.js";
@@ -81,7 +81,8 @@ function App() {
           />
           <Route path="/interviewexperience" element={<InterviewExperience />} />
           <Route path="/addexperience" element={<AddExperience />} />
-          <Route path="/faq" element={<PlacementMaterialPage />} />
+          <Route path="/faq" element={<Navigate to="/placement-material" replace />} />
+          <Route path="/placement-material" element={<PlacementMaterialPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/editprofilepage" element={<EditProfile />} />
           <Route path="/interviewreports" element={<InterviewReports />} />

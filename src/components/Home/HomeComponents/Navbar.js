@@ -23,7 +23,7 @@ const Navbar = () => {
   }, []);
   
   return (
-    <body>
+    <>
     <nav className="navbar navbar-expand-lg fixed-top">
     <div className="container-fluid">
           <Link to="/home" className="navbar-brand me-auto" >CareerConnect</Link>
@@ -47,7 +47,7 @@ const Navbar = () => {
                   <Link className="nav-link mx-lg-2" to="/scheduledInterview">Scheduled Interviews</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link mx-lg-2" to="/faq">Placement Material</Link>
+                  <Link className="nav-link mx-lg-2" to="/placement-material">Placement Material</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link mx-lg-2" to="/interviewexperience">Interview Experience</Link>
@@ -63,10 +63,7 @@ const Navbar = () => {
         </div>
         </div>
       </nav>
-
-
-    {/* Bootstrap JS is loaded via useEffect */}
-  </body>
+    </>
   );
 };
 
