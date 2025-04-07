@@ -140,6 +140,7 @@
   width: 100%;
   height: 5px;
   background: linear-gradient(90deg, #4a148c, #7b1fa2);
+  margin-top: 90px;
 }
 
 .page-heading h1 {
@@ -153,6 +154,7 @@
   background-clip: text;
   position: relative;
   display: inline-block;
+  margin-top: 90px
 }
 
 .page-heading p {

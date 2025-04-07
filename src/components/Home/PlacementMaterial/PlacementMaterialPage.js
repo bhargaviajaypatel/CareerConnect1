@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import axios from "../../../api/axiosConfig.js";
 import { useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../../../App.js";
@@ -6,6 +6,76 @@ import Navbar from "../HomeComponents/Navbar.js";
 import Footer from "../HomeComponents/Footer.js";
 import "../Home-CSS/Faq.css";
 import "./PlacementMaterial.css";
+
+// Add this array of placeholder companies near the top of the file, before the component function
+const PLACEHOLDER_COMPANIES = [
+  {
+    _id: 'google-placeholder',
+    name: 'Google',
+    jobprofile: 'Software Engineer',
+    description: 'Learn how to prepare for Google\'s technical interviews, coding challenges, and system design questions.',
+    rolesAndResponsibilities: [
+      'Frontend Development', 
+      'Backend Development', 
+      'Full Stack Development'
+    ]
+  },
+  {
+    _id: 'microsoft-placeholder',
+    name: 'Microsoft',
+    jobprofile: 'Software Development Engineer',
+    description: 'Detailed preparation guide for Microsoft\'s interview process, including coding problems and behavioral questions.',
+    rolesAndResponsibilities: [
+      'Cloud Engineering', 
+      'DevOps', 
+      'Machine Learning'
+    ]
+  },
+  {
+    _id: 'amazon-placeholder',
+    name: 'Amazon',
+    jobprofile: 'SDE & Product Management',
+    description: 'Comprehensive roadmap to navigate Amazon\'s leadership principles and technical assessment process.',
+    rolesAndResponsibilities: [
+      'Product Management', 
+      'Data Science', 
+      'Software Development'
+    ]
+  },
+  {
+    _id: 'meta-placeholder',
+    name: 'Meta',
+    jobprofile: 'Software Engineer',
+    description: 'Strategic approach to Meta\'s interview rounds, focusing on algorithms, coding, and product sense.',
+    rolesAndResponsibilities: [
+      'React Development', 
+      'Mobile Engineering', 
+      'Infrastructure'
+    ]
+  },
+  {
+    _id: 'apple-placeholder',
+    name: 'Apple',
+    jobprofile: 'Software & Hardware Engineering',
+    description: 'Preparation guide for Apple\'s unique interview style, focusing on both technical skills and creative problem-solving.',
+    rolesAndResponsibilities: [
+      'iOS Development', 
+      'Hardware Integration', 
+      'UI/UX Design'
+    ]
+  },
+  {
+    _id: 'netflix-placeholder',
+    name: 'Netflix',
+    jobprofile: 'Engineering & Content Development',
+    description: 'Insights into Netflix\'s culture-focused interviews and technical assessments for engineering roles.',
+    rolesAndResponsibilities: [
+      'Content Delivery', 
+      'Platform Engineering', 
+      'Data Engineering'
+    ]
+  }
+];
 
 function PlacementMaterialPage() {
   const [companies, setCompanies] = useState([]);
@@ -30,6 +100,25 @@ function PlacementMaterialPage() {
   const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
   
   const navigate = useNavigate();
+
+  // Add this reference to track mounting/unmounting
+  const companiesGridRef = useRef(null);
+  
+  // Add this effect to log when component renders/rerenders
+  useEffect(() => {
+    console.log("PlacementMaterialPage rendered", { 
+      companiesLength: companies?.length,
+      // Only log filteredCompanies if it's defined
+      ...(typeof filteredCompanies !== 'undefined' ? { filteredCompaniesLength: filteredCompanies?.length } : {}),
+      loading,
+      selectedCompany
+    });
+    
+    // Return cleanup to detect unmounting
+    return () => {
+      console.log("PlacementMaterialPage unmounting");
+    };
+  }, [companies, loading, selectedCompany]); // Remove filteredCompanies from dependency array
 
   // Define loadSampleCompanies first without dependencies
   const loadSampleCompanies = useCallback(() => {
@@ -147,22 +236,36 @@ function PlacementMaterialPage() {
     }
   }, []);
 
+  // Add a useEffect specifically to handle the company state
   useEffect(() => {
-    const verifyAndFetchData = async () => {
-      try {
-        // Start with loading sample data to provide immediate content
+    // If we don't have companies yet, initialize with placeholder companies
+    if (!companies || companies.length === 0) {
+      console.log("No companies loaded, using placeholders");
+      setCompanies(PLACEHOLDER_COMPANIES);
+      setLoading(false);
+    }
+  }, [companies]);
+
+  // Modify the verifyAndFetchData function to be more resilient
+  const verifyAndFetchData = useCallback(async () => {
+    try {
+      // Start with setting placeholder data to provide immediate content
+      if (!companies || companies.length === 0) {
+        console.log("Loading sample companies data (initialization)");
         loadSampleCompanies();
-        
-        // Get the email from localStorage
-        const userEmail = localStorage.getItem('userEmail');
-        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-        
-        if (!isAuthenticated || !userEmail) {
-          console.log("Not authenticated, redirecting to login");
-          navigate("/login");
-          return;
-        }
-        
+      }
+      
+      // Get the email from localStorage
+      const userEmail = localStorage.getItem('userEmail');
+      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+      
+      if (!isAuthenticated || !userEmail) {
+        console.log("Not authenticated, redirecting to login");
+        navigate("/login");
+        return;
+      }
+      
+      try {
         const verifyRes = await axios.get("/auth/verify", {
           params: { email: userEmail }
         });
@@ -184,21 +287,49 @@ function PlacementMaterialPage() {
           navigate("/admin");
           return;
         }
-        
-        // Then try to fetch real data
-        await fetchCompanies();
-        await fetchRoadmaps();
-        // Fetch saved roadmaps for the user
-        await fetchSavedRoadmaps();
-      } catch (err) {
-        console.error("Authentication error:", err);
-        setError("Authentication failed. Please login again.");
-        setLoading(false);
-        navigate("/login");
+      } catch (authErr) {
+        console.error("Authentication check failed:", authErr);
+        // Continue with local data if auth check fails
       }
-    };
+      
+      // Then try to fetch real data
+      try {
+        await fetchCompanies();
+      } catch (fetchError) {
+        console.error("Failed to fetch companies:", fetchError);
+        // Fallback to sample data
+        loadSampleCompanies();
+      }
+      
+      try {
+        await fetchRoadmaps();
+      } catch (roadmapsError) {
+        console.error("Failed to fetch roadmaps:", roadmapsError);
+        // Non-critical, continue
+      }
+      
+      // Fetch saved roadmaps for the user
+      try {
+        await fetchSavedRoadmaps();
+      } catch (savedError) {
+        console.error("Failed to fetch saved roadmaps:", savedError);
+        // Non-critical, continue
+      }
+      
+      // Ensure loading is set to false no matter what
+      setLoading(false);
+    } catch (err) {
+      console.error("Verification error:", err);
+      setError("An error occurred. Using local data.");
+      loadSampleCompanies();
+      setLoading(false);
+    }
+  }, [navigate, fetchCompanies, fetchRoadmaps, fetchSavedRoadmaps, loadSampleCompanies, companies]);
+
+  // Replace the existing useEffect with our new implementation
+  useEffect(() => {
     verifyAndFetchData();
-  }, [navigate, fetchCompanies, fetchRoadmaps, fetchSavedRoadmaps, loadSampleCompanies]);
+  }, [verifyAndFetchData]);
 
   // Add function to toggle save roadmap
   const toggleSaveRoadmap = async (roadmapId) => {
@@ -250,13 +381,18 @@ function PlacementMaterialPage() {
   };
 
   // Improved search functionality
-  const filterCompanies = (query) => {
+  const filterCompanies = useCallback((query) => {
     if (!query || query.trim() === '') {
-      return companies;
+      return companies || [];
     }
     
     const normalizedQuery = query.toLowerCase().trim();
     console.log("Normalized search query:", normalizedQuery);
+    
+    if (!companies || !Array.isArray(companies)) {
+      console.log("Companies array is invalid", companies);
+      return [];
+    }
     
     return companies.filter(company => {
       if (!company || !company.name) return false;
@@ -267,12 +403,9 @@ function PlacementMaterialPage() {
       const nameMatch = companyName.includes(normalizedQuery);
       const profileMatch = jobProfile.includes(normalizedQuery);
       
-      // Log each company name and whether it matches for debugging
-      console.log(`Company: ${companyName}, Query: ${normalizedQuery}, Match: ${nameMatch || profileMatch}`);
-      
       return nameMatch || profileMatch;
     });
-  };
+  }, [companies]);
   
   // Filter companies based on search query
   const filteredCompanies = filterCompanies(searchQuery);
@@ -920,8 +1053,18 @@ function PlacementMaterialPage() {
     }
   };
 
-  // Navigate to company roadmap detail view
+  // Update the navigateToCompanyRoadmap function
   const navigateToCompanyRoadmap = (companyId) => {
+    // Show message for placeholder companies
+    if (companyId.includes('placeholder')) {
+      setError("We're currently developing detailed roadmaps for this company. Please check back soon or explore our general resources.");
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return;
+    }
+    
+    // For real companies, use existing functionality
     setSelectedCompany(companyId);
     handleCompanySelect(companyId);
     
@@ -930,9 +1073,6 @@ function PlacementMaterialPage() {
       top: 0,
       behavior: 'smooth'
     });
-    
-    // In a future enhancement, this could navigate to a dedicated page:
-    // navigate(`/placement-material/company/${companyId}`);
   };
 
   const handleResourceCompletion = async (roadmapId, resourceId, completed) => {
@@ -1533,10 +1673,17 @@ Work with cloud infrastructure on AWS"
               and interview insights specific to their recruitment process.
             </p>
             
-            {filteredCompanies.length > 0 ? (
-              <div className="companies-grid">
-                {filteredCompanies.map(company => (
-                  <div key={company._id} className="company-card">
+            <div className="companies-grid" ref={companiesGridRef} style={{ minHeight: '400px' }}>
+              {/* Use placeholder companies if filteredCompanies is empty */}
+              {(filteredCompanies && filteredCompanies.length > 0 ? filteredCompanies : PLACEHOLDER_COMPANIES).map(company => {
+                // Ensure we have a valid company object
+                if (!company || !company._id) {
+                  console.log("Invalid company object", company);
+                  return null;
+                }
+                
+                return (
+                  <div key={company._id} className="company-card" style={{ opacity: 1, visibility: 'visible' }}>
                     <h3 className="company-name">{company.name}</h3>
                     {company.jobprofile && (
                       <div className="company-profile">{company.jobprofile}</div>
@@ -1558,14 +1705,9 @@ Work with cloud infrastructure on AWS"
                       <i className="fas fa-road"></i> View Roadmap
                     </button>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="no-results">
-                <h3>No companies match your search criteria</h3>
-                <p>Try adjusting your search terms or browse our general resources instead.</p>
-              </div>
-            )}
+                );
+              })}
+            </div>
           </>
         )}
       </div>

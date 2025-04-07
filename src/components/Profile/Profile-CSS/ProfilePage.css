@@ -489,9 +489,9 @@ button:hover {
     right: 0;
     margin-bottom: 20px;
     width: 100%;
-    justify-content: center;
-  }
-  
+  justify-content: center;
+}
+
   .content-section {
     margin-top: 20px; /* Less margin needed with button repositioned */
   }
@@ -551,7 +551,7 @@ button:hover {
   .document-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .profile-avatar-container {
     flex-direction: column;
     align-items: center;
@@ -564,7 +564,7 @@ button:hover {
   }
   
   .profile-name-details {
-    text-align: center;
+  text-align: center;
   }
 }
   

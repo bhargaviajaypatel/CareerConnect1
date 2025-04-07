@@ -16,13 +16,35 @@ function AddExperience() {
   });
   const [alertMessage, setAlertMessage] = useState('');
   const [alertColor, setAlertColor] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get("/auth/verify").then((res) => {
-      if (res.data.status) {
-      } else {
-        navigate("/interviewexperience");
+    // Get authentication info from localStorage first
+    const userEmail = localStorage.getItem('userEmail');
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    
+    if (!isAuthenticated || !userEmail) {
+      // Only redirect if user is clearly not authenticated
+      navigate("/login");
+      return;
+    }
+    
+    // Then verify with the server
+    axios.get("/auth/verify", {
+      params: { email: userEmail }
+    }).then((res) => {
+      // Only redirect if explicitly invalid
+      if (res.data === "Invalid") {
+        console.log("Authentication failed, redirecting to login");
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userId');
+        navigate("/login");
       }
+    }).catch(error => {
+      console.error("Error verifying authentication:", error);
+      // Don't redirect on network errors
     });
   }, [navigate]);
 
@@ -35,12 +57,23 @@ function AddExperience() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    
     try {
-      const response = await axios.post('/auth/add-interview', formData);
+      // Get user email from localStorage
+      const userEmail = localStorage.getItem('userEmail');
+      
+      // Include the email in the submission
+      const submissionData = {
+        ...formData,
+        email: userEmail
+      };
+      
+      const response = await axios.post('/auth/add-interview', submissionData);
       console.log(response.data);
       
       setFormData({
-        username:'',
+        username: '',
         companyName: '',
         position: '',
         experience: '',
@@ -56,9 +89,30 @@ function AddExperience() {
         navigate('/interviewexperience');
       }, 2000);
     } catch (error) {
-      console.error('Error:', error);      
-      setAlertMessage('Error submitting your interview experience. Please try again.');
+      console.error('Error:', error);
+      
+      // More specific error messages based on the response
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (error.response.status === 401) {
+          setAlertMessage('Authentication error. Please log in again.');
+        } else if (error.response.data && error.response.data.message) {
+          setAlertMessage(error.response.data.message);
+        } else {
+          setAlertMessage(`Server error: ${error.response.status}`);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        setAlertMessage('No response from server. Please check your internet connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setAlertMessage('Error submitting your interview experience. Please try again.');
+      }
+      
       setAlertColor('#dc3545'); // Red error color
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,7 +170,23 @@ function AddExperience() {
           <option value="Waiting">Waiting</option>
         </select>
       </div>
-      <button type="submit" style={{ padding: '0.5rem', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', transition: 'background-color 0.3s', alignSelf: 'center', width: 'fit-content' }}>Submit</button>
+      <button 
+        type="submit" 
+        disabled={loading}
+        style={{ 
+          padding: '0.5rem', 
+          backgroundColor: loading ? '#6c757d' : '#007bff', 
+          color: '#fff', 
+          border: 'none', 
+          borderRadius: '5px', 
+          cursor: loading ? 'not-allowed' : 'pointer', 
+          transition: 'background-color 0.3s', 
+          alignSelf: 'center', 
+          width: 'fit-content' 
+        }}
+      >
+        {loading ? 'Submitting...' : 'Submit'}
+      </button>
     </form>
     {alertMessage && <div style={{ marginTop: '1rem', padding: '0.5rem', backgroundColor: alertColor, color: '#fff', borderRadius: '5px', textAlign: 'center' }}>{alertMessage}</div>}
   </div>
