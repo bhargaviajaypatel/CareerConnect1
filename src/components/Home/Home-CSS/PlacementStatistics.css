@@ -1,0 +1,140 @@
+.placement-statistics-section {
+  padding: 60px 0;
+  background-color: #ffffff;
+  overflow: hidden; /* Prevent scrollbars in this section only */
+}
+
+.container {
+  overflow: visible; /* Allow scrollbars on container */
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0a1442;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: #6c757d;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.last-updated {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.statistics-container {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.statistics-cards {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.statistic-card {
+  flex: 0 0 calc(25% - 20px);
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 25px 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.statistic-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.statistic-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0a1442;
+  margin-bottom: 5px;
+}
+
+.statistic-label {
+  font-size: 1rem;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+.progress-container {
+  height: 5px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 100%;
+  background-color: #4a148c;
+  border-radius: 10px;
+}
+
+.statistic-increase {
+  font-size: 0.85rem;
+  color: #28a745;
+  margin-bottom: 0;
+}
+
+.increase-icon {
+  margin-right: 5px;
+}
+
+.loading-container {
+  width: 100%;
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+  .statistic-card {
+    flex: 0 0 calc(50% - 15px);
+    margin-bottom: 30px;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+  
+  .statistic-value {
+    font-size: 1.8rem;
+  }
+  
+  .placement-statistics-section {
+    padding: 40px 0;
+  }
+  
+  .row > [class*="col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .statistic-card {
+    flex: 0 0 100%;
+  }
+}

@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Routes, Route, BrowserRouter, useNavigate } fr
 import axios from 'axios';
 //import AdminHome from "../AdminHomeComponents/AdminHome.js";
 import Home from "./AdminHomeComponents/Home.js";
-import About from "./AdminHomeComponents/About.js";
-import Work from "./AdminHomeComponents/Work.js";
 import Footer from "./AdminReusableComponents/AdminFooter.js";
 
 function Admin() {
@@ -52,8 +50,6 @@ function Admin() {
   return (
     <>
       <Home />
-      <About />
-      <Work />
       <Footer />
     </>
   );

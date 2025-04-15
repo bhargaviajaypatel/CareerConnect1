@@ -10,6 +10,9 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14",
     "@reduxjs/toolkit": "^2.2.2",
@@ -22,12 +25,15 @@
     "buffer": "^6.0.3",
     "chart.js": "^4.4.8",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.19.1",
+    "express-rate-limit": "^7.5.0",
     "form-data": "^4.0.0",
     "glob": "^11.0.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.2.3",
+    "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.1",
     "nanoid": "^5.0.6",
     "nodemailer": "^6.9.13",
@@ -48,11 +54,13 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "server": "nodemon src/server-side/index.js",
+    "server": "nodemon --experimental-specifier-resolution=node --ext js,mjs src/server-side/index.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "seed-db": "node src/server-side/seedData.js"
+    "seed-db": "node src/server-side/seedData.js",
+    "security-check": "node scripts/security-check.js",
+    "security-check:watch": "nodemon --watch package.json --watch package-lock.json scripts/security-check.js"
   },
   "eslintConfig": {
     "extends": [
@@ -88,5 +96,42 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "security": {
+    "csp": {
+      "default-src": [
+        "'self'"
+      ],
+      "script-src": [
+        "'self'",
+        "'unsafe-inline'",
+        "'unsafe-eval'"
+      ],
+      "style-src": [
+        "'self'",
+        "'unsafe-inline'"
+      ],
+      "img-src": [
+        "'self'",
+        "data:",
+        "https:"
+      ],
+      "connect-src": [
+        "'self'",
+        "https://api.example.com"
+      ],
+      "font-src": [
+        "'self'"
+      ],
+      "object-src": [
+        "'none'"
+      ],
+      "media-src": [
+        "'self'"
+      ],
+      "frame-src": [
+        "'none'"
+      ]
+    }
   }
 }

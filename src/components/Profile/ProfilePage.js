@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import axios from "../../api/axiosConfig.js";
 import { useNavigate } from "react-router-dom";
-import { DarkModeContext } from "../../App.js";
 import Navbar from "../Home/HomeComponents/Navbar.js";
 import Footer from "../Home/HomeComponents/Footer.js";
 import "./Profile-CSS/ProfilePage.css";
@@ -24,7 +23,7 @@ function ProfilePage() {
   const [documentUploadLoading, setDocumentUploadLoading] = useState(false);
   const [roadmapProgress, setRoadmapProgress] = useState({});
   const [savedRoadmapsLoading, setSavedRoadmapsLoading] = useState(false);
-  const { darkMode } = useContext(DarkModeContext);
+
   
   const navigate = useNavigate();
 
@@ -43,6 +42,7 @@ function ProfilePage() {
         
         await fetchProfileData();
         await fetchDocuments();
+        await fetchSavedRoadmaps();
       } catch (err) {
         console.error("Authentication error:", err);
         setError({
@@ -454,6 +454,43 @@ function ProfilePage() {
       }
     } catch (err) {
       console.error("Error fetching roadmap progress:", err);
+    } finally {
+      setSavedRoadmapsLoading(false);
+    }
+  };
+
+  // Add a function to fetch saved roadmaps
+  const fetchSavedRoadmaps = async () => {
+    try {
+      setSavedRoadmapsLoading(true);
+      
+      // First try to fetch from API
+      try {
+        const response = await axios.get('/roadmap/saved');
+        if (response.data && response.data.savedRoadmaps) {
+          setProfileData({
+            ...profileData,
+            savedRoadmaps: response.data.savedRoadmaps
+          });
+        }
+      } catch (apiError) {
+        console.error("Error fetching saved roadmaps from API:", apiError);
+        
+        // Fallback to localStorage if API fails
+        const savedRoadmapsFromStorage = JSON.parse(localStorage.getItem('savedRoadmaps') || '[]');
+        if (savedRoadmapsFromStorage.length > 0) {
+          setProfileData({
+            ...profileData,
+            savedRoadmaps: savedRoadmapsFromStorage
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error in fetchSavedRoadmaps:", error);
+      setError({
+        type: 'error',
+        message: 'Failed to load saved roadmaps. Please try again.'
+      });
     } finally {
       setSavedRoadmapsLoading(false);
     }
@@ -1020,30 +1057,75 @@ function ProfilePage() {
                 </h3>
                 
                 {savedRoadmapsLoading ? (
-                  <div className="section-loading">
-                    <div className="loading-spinner-small"></div>
-                    <p>Loading your roadmaps...</p>
+                  <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Loading your saved roadmaps...</p>
                   </div>
                 ) : profileData.savedRoadmaps && profileData.savedRoadmaps.length > 0 ? (
-                  <div className="document-cards">
-                    {profileData.savedRoadmaps.map((roadmap) => (
-                      <div className="document-card" key={roadmap._id || 'roadmap-1'}>
-                        <h4>{roadmap.title || 'Roadmap Title'}</h4>
-                        <p>{roadmap.description || 'Roadmap description'}</p>
-                        <button 
-                          onClick={() => navigateToRoadmap(roadmap._id)}
-                          className="view-btn"
-                        >
-                          View
-                        </button>
+                  <div className="saved-roadmaps-container">
+                    {profileData.savedRoadmaps.map((roadmap, index) => (
+                      <div key={roadmap.roadmapId || index} className="roadmap-card">
+                        <div className="roadmap-card-header">
+                          <h4 className="roadmap-title">{roadmap.title || "Career Preparation Path"}</h4>
+                          <span className="roadmap-company">{roadmap.company || "Custom Roadmap"}</span>
+                        </div>
+                        
+                        <p className="roadmap-description">
+                          {roadmap.description || "Follow this structured learning path to prepare for your interviews."}
+                        </p>
+                        
+                        <div className="roadmap-skills">
+                          {roadmap.skills && roadmap.skills.length > 0 ? (
+                            <>
+                              <h5>Key Skills:</h5>
+                              <div className="skills-list">
+                                {roadmap.skills.slice(0, 5).map((skill, idx) => (
+                                  <span key={idx} className="skill-tag">
+                                    {typeof skill === 'object' ? skill.name : skill}
+                                  </span>
+                                ))}
+                                {roadmap.skills.length > 5 && (
+                                  <span className="skill-tag more-skills">+{roadmap.skills.length - 5} more</span>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="no-skills">No specific skills defined for this roadmap.</p>
+                          )}
+                        </div>
+                        
+                        <div className="roadmap-footer">
+                          <span className="saved-date">
+                            Saved on: {new Date(roadmap.savedAt || Date.now()).toLocaleDateString()}
+                          </span>
+                          
+                          <div className="roadmap-actions">
+                            <button 
+                              className="view-roadmap-btn"
+                              onClick={() => navigateToRoadmap(roadmap.roadmapId)}
+                            >
+                              <i className="fas fa-eye"></i> View
+                            </button>
+                            
+                            <button 
+                              className="remove-roadmap-btn"
+                              onClick={() => unsaveRoadmap(roadmap.roadmapId)}
+                            >
+                              <i className="fas fa-trash"></i> Remove
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div>
+                  <div className="no-roadmaps-message">
                     <p>You haven't saved any roadmaps yet.</p>
-                    <button onClick={() => navigate('/placement-material')}>
-                      Browse Roadmaps
+                    <button 
+                      className="browse-roadmaps-btn"
+                      onClick={() => navigate('/placement-material')}
+                    >
+                      <i className="fas fa-search"></i> Browse Roadmaps
                     </button>
                   </div>
                 )}

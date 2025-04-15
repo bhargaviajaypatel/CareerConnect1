@@ -1,4 +1,35 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+export const getCompanies = createAsyncThunk(
+  "companies/getCompanies",
+  async (payload, { rejectWithValue }) => {
+    try {
+      // Check if payload is valid
+      if (!payload) {
+        console.warn("Payload is undefined, returning empty array");
+        return { companies: [] };
+      }
+      
+      // Handle different payload types
+      if (Array.isArray(payload)) {
+        console.log("Payload is an array, using directly:", payload);
+        return { companies: payload };
+      } else if (payload.data && Array.isArray(payload.data)) {
+        console.log("Payload has data array property, using payload.data:", payload.data);
+        return { companies: payload.data };
+      } else if (typeof payload === 'object') {
+        console.log("Payload is an object, wrapping in array:", payload);
+        return { companies: [payload] };
+      } else {
+        console.warn("Payload data is not in a recognized format:", payload);
+        return { companies: [] };
+      }
+    } catch (error) {
+      console.error("Error in getCompanies thunk:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const companySlice = createSlice({
   name: "companies",
@@ -8,49 +39,6 @@ const companySlice = createSlice({
     
   },
   reducers: {
-    getCompanies: (state, action) => {
-      if (Array.isArray(action.payload.data)) {
-        state.companies = action.payload.data.map(company => ({
-          id: company._id,
-          companyname: company.companyname,
-          jobprofile: company.jobprofile,
-          jobdescription: company.jobdescription,
-          website: company.website,
-          ctc: company.ctc,
-          doi: company.doi,
-          eligibilityCriteria: company.eligibilityCriteria,
-          tenthPercentage: company.tenthPercentage,
-          twelfthPercentage: company.twelfthPercentage,
-          graduationCGPA: company.graduationCGPA,
-          sixthSemesterCGPA: company.sixthSemesterCGPA,
-          requiredSkills: company.requiredSkills || [],
-          rolesAndResponsibilities: company.rolesAndResponsibilities || []
-        }));
-      } else if (typeof action.payload.data === 'object') {
-        // Assuming you only have one company object instead of an array
-        const company = action.payload.data;
-        state.companies = [{
-          id: company._id,
-          companyname: company.companyname,
-          jobprofile: company.jobprofile,
-          jobdescription: company.jobdescription,
-          website: company.website,
-          ctc: company.ctc,
-          doi: company.doi,
-          eligibilityCriteria: company.eligibilityCriteria,
-          tenthPercentage: company.tenthPercentage,
-          twelfthPercentage: company.twelfthPercentage,
-          graduationCGPA: company.graduationCGPA,
-          sixthSemesterCGPA: company.sixthSemesterCGPA,
-          requiredSkills: company.requiredSkills || [],
-          rolesAndResponsibilities: company.rolesAndResponsibilities || []
-        }];
-      } else {
-        console.error("Payload data is not an array or object:", action.payload.data);
-      }
-    },
-    
-
     updateCompany:(state,action)=>{
         const index=state.companies.findIndex(x=>x.id===action.payload.id)
         state.companies[index]={
@@ -79,8 +67,28 @@ const companySlice = createSlice({
     },
 
     
+  },
+  extraReducers: (builder) => {
+    builder.addCase(getCompanies.fulfilled, (state, action) => {
+      state.companies = action.payload.companies.map(company => ({
+        id: company._id,
+        companyname: company.companyname,
+        jobprofile: company.jobprofile,
+        jobdescription: company.jobdescription,
+        website: company.website,
+        ctc: company.ctc,
+        doi: company.doi,
+        eligibilityCriteria: company.eligibilityCriteria,
+        tenthPercentage: company.tenthPercentage,
+        twelfthPercentage: company.twelfthPercentage,
+        graduationCGPA: company.graduationCGPA,
+        sixthSemesterCGPA: company.sixthSemesterCGPA,
+        requiredSkills: company.requiredSkills || [],
+        rolesAndResponsibilities: company.rolesAndResponsibilities || []
+      }));
+    });
   }
 });
 
-export const { getCompanies, updateCompany, deleteCompany} = companySlice.actions;
+export const { updateCompany, deleteCompany} = companySlice.actions;
 export default companySlice.reducer;

@@ -5,23 +5,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getCompanies } from "../../redux/companySlice.jsx";
 import Footer from "./HomeComponents/Footer.js";
-import Announcements from "./HomeComponents/Announcements.js";
-import PlacementStatistics from "./HomeComponents/PlacementStatistics.js";
 import "./Home-CSS/Application.css";
 import "./Home-CSS/ModernHome.css";
 import "./Home-CSS/EnhancedHero.css";
 import "./Home-CSS/EnhancedStats.css";
 import "./Home-CSS/ModernHomeUpdates.css";
-
-// College name and logo configuration
-const COLLEGE_INFO = {
-  name: "Tech Institute of Engineering",
-  shortName: "",
-  logo: "https://via.placeholder.com/150x150/4b2e83/ffffff?text=TIE",
-  establishedYear: "1985",
-  campusLocation: "Main Campus",
-  department: "Department of Computer Science & Engineering"
-};
 
 // Company logo imports
 const COMPANY_LOGOS = {
@@ -91,34 +79,16 @@ function Home() {
   const [featuredCompanies, setFeaturedCompanies] = useState([]);
   const [statistics, setStatistics] = useState({
     totalPlacements: 0,
-    averageCTC: 0,
-    successRate: 0,
-    topCTC: 0
+    totalCompanies: 0,
+    avgSalary: 0,
+    successRate: 0
   });
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false); 
-  const [collegeAnnouncements, setCollegeAnnouncements] = useState([
-    {
-      id: 1,
-      title: "Campus Recruitment Drive",
-      date: "April 15, 2025",
-      content: "Microsoft will be conducting on-campus interviews for final year students."
-    },
-    {
-      id: 2,
-      title: "Pre-Placement Workshop",
-      date: "April 10, 2025",
-      content: "Resume building and interview preparation workshop at the Main Auditorium."
-    },
-    {
-      id: 3,
-      title: "Technical Seminar",
-      date: "April 12, 2025",
-      content: "Industry experts from Google will conduct a technical seminar on Cloud Computing."
-    }
-  ]);
-
+  
   // Add a ref to track if authentication is in progress
   const authInProgress = useRef(false);
+
+  // Add state to control modal visibility - set to false to disable the welcome splash screen
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Define fetchCompanies using useCallback to avoid dependency issues
   const fetchCompanies = useCallback(async () => {
@@ -133,9 +103,9 @@ function Home() {
       // Calculate some realistic statistics
       setStatistics({
         totalPlacements: 587, // Fixed value for better UI 
-        averageCTC: 41.65, // Updated average
-        successRate: 94, // Updated success rate
-        topCTC: 45.5
+        totalCompanies: FEATURED_COMPANIES.length,
+        avgSalary: 41.65, // Updated average
+        successRate: 94 // Updated success rate
       });
       
       setLoading(false);
@@ -146,9 +116,9 @@ function Home() {
       
       setStatistics({
         totalPlacements: 587,
-        averageCTC: 41.65,
-        successRate: 94,
-        topCTC: 45.5
+        totalCompanies: FEATURED_COMPANIES.length,
+        avgSalary: 41.65,
+        successRate: 94
       });
       
       setError(null); // Clear error since we have fallback
@@ -355,7 +325,7 @@ function Home() {
     return (
       <div className="loading-container">
         <div className="loading"></div>
-        <h3>Loading Career Connect...</h3>
+        <p>Please wait while we load your dashboard</p>
       </div>
     );
   }
@@ -363,103 +333,232 @@ function Home() {
   if (error) {
     return (
       <div className="error-container">
-        <i className="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-        <h3>Error</h3>
+        <h2>Error</h2>
         <p>{error}</p>
-        <button className="btn btn-primary mt-3" onClick={() => window.location.reload()}>
-          Try Again
+        <button 
+          className="btn btn-primary"
+          onClick={() => {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userId');
+            navigate("/login");
+          }}
+        >
+          Return to Login
         </button>
       </div>
     );
   }
 
   return (
-    <div className="modern-home-container">
-      {/* College Badge */}
-      <div className="college-badge">
-        {COLLEGE_INFO.name} - {COLLEGE_INFO.campusLocation}
-      </div>
-
-      <div className="content-wrapper">
-        {/* Hero Section */}
+    <div className="App">
+      {/* Modern Home Page Design */}
+      <div className="modern-home-container">
+        {/* Navbar */}
+        <nav className="navbar navbar-expand-lg fixed-top">
+          <div className="container-fluid">
+            <Link to="/home" className="navbar-brand me-auto">CareerConnect</Link>
+            <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar">
+              <div className="offcanvas-header">
+                <h5 className="offcanvas-title">Career Connect</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+              </div>
+              <div className="offcanvas-body">
+                <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+                  <li className="nav-item">
+                    <Link className="nav-link mx-lg-2 active" to="/home">Home</Link>
+                  </li>
+                  <li className="nav-item">
+                    <span 
+                      className="nav-link mx-lg-2" 
+                      onClick={() => {
+                        console.log("Navigating to Company Listing");
+                        navigate('/companylisting');
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Company Listing
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <span 
+                      className="nav-link mx-lg-2" 
+                      onClick={() => navigate('/scheduledInterview')}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Scheduled Interviews
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <span 
+                      className="nav-link mx-lg-2" 
+                      onClick={() => navigate('/placement-material')}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Placement Material
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <span 
+                      className="nav-link mx-lg-2" 
+                      onClick={() => navigate('/interviewexperience')}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Interview Experience
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <span 
+                      className="nav-link mx-lg-2" 
+                      onClick={() => navigate('/profile')}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Profile
+                    </span>
+                  </li>
+                  <li className="nav-item">
+                    <span 
+                      className="nav-link mx-lg-2" 
+                      onClick={() => {
+                        localStorage.removeItem('isAuthenticated');
+                        localStorage.removeItem('userRole');
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('userId');
+                        navigate('/');
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      Logout
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </nav>
+        
+        {/* Modern Hero Section */}
         <section className="hero-section">
-          <div className="container">
+          <div className="hero-background"></div>
+          <div className="container" style={{ position: 'relative', zIndex: 3 }}>
             <div className="row align-items-center">
-              <div className="col-lg-6 hero-text-column">
-                <div className="hero-text" data-aos="fade-right">
-                  <h1>Your Career Journey Starts Here</h1>
-                  <p>Connect with top companies, access personalized placement roadmaps, and accelerate your career growth with AI-powered insights.</p>
-                  <div className="hero-buttons">
-                    <button className="btn btn-primary btn-lg" onClick={() => navigate('/companylisting')}>
-                      Browse Companies
+              <div className="col-lg-7 col-md-10 mx-auto">
+                <div className="hero-content">
+                  <div className="welcome-greeting">
+                    <span className="greeting-badge">Welcome</span>
+                    <h1 className="user-name">{currentUser?.name || localStorage.getItem('userEmail')}</h1>
+                  </div>
+                  
+                  {placementStatus && placementStatus.status === "Placed" ? (
+                    <div className="placement-badge">
+                      <span className="placed-icon"><i className="fas fa-trophy"></i></span>
+                      <span className="placed-text">Congratulations! You've secured a position at <strong>{placementStatus.companyName}</strong></span>
+                    </div>
+                  ) : (
+                    <div className="opportunity-badge">
+                      <span className="opportunity-icon"><i className="fas fa-rocket"></i></span>
+                      <span className="opportunity-text">Ready to launch your career journey</span>
+                    </div>
+                  )}
+                  
+                  <h2 className="hero-headline">Your Path to <span className="highlight-text">Professional Excellence</span></h2>
+                  
+                  <p className="hero-description">
+                    CareerConnect provides strategic guidance, industry connections, and comprehensive resources to help you navigate your placement journey with confidence.
+                  </p>
+                  
+                  <div className="hero-stats-row">
+                    <div className="hero-stat">
+                      <div className="stat-number">150+</div>
+                      <div className="stat-label">Partner Companies</div>
+                    </div>
+                    <div className="hero-stat">
+                      <div className="stat-number">94%</div>
+                      <div className="stat-label">Success Rate</div>
+                    </div>
+                    <div className="hero-stat">
+                      <div className="stat-number">₹41.6L</div>
+                      <div className="stat-label">Avg. CTC</div>
+                    </div>
+                  </div>
+                  
+                  <div className="hero-cta">
+                    <button className="btn btn-primary" onClick={() => navigate('/companylisting')}>
+                      <i className="fas fa-building me-2"></i>Browse Opportunities
                     </button>
-                    <button className="btn btn-outline-primary btn-lg" onClick={() => navigate('/placementmaterial')}>
-                      Placement Materials
+                    <button className="btn btn-outline-primary" onClick={() => navigate('/placement-material')}>
+                      <i className="fas fa-book me-2"></i>Placement Resources
                     </button>
                   </div>
                 </div>
               </div>
-              <div className="col-lg-6 hero-image-column">
-                <div className="hero-image" data-aos="fade-left">
-                  <img src="https://img.freepik.com/free-vector/business-team-discussing-ideas-startup_74855-4380.jpg?w=1480&t=st=1680747413~exp=1680748013~hmac=3be3c9e3fcc78949c691df9e8229b7b7ff9b4c7c3a1f65d6518a18b7c601e811" alt="Career growth illustration" />
+              <div className="col-lg-5 d-none d-lg-block">
+                <div className="hero-image-container">
+                  <img src="https://img.freepik.com/free-vector/recruitment-agency-searching-job-applicants_1262-19873.jpg" alt="Career growth illustration" className="hero-image" />
+                  <div className="floating-element floating-element-1">
+                    <i className="fas fa-briefcase"></i>
+                  </div>
+                  <div className="floating-element floating-element-2">
+                    <i className="fas fa-user-graduate"></i>
+                  </div>
+                  <div className="floating-element floating-element-3">
+                    <i className="fas fa-chart-line"></i>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Add curved divider */}
-          <div className="section-divider">
+          <div className="hero-shape-divider">
             <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
               <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="shape-fill"></path>
             </svg>
           </div>
         </section>
 
-        {/* Announcements Section */}
-        <Announcements />
-
-        {/* Placement Statistics Section */}
-        <PlacementStatistics />
-
         {/* Stats Section */}
         <section className="stats-section">
           <div className="container">
-            <div className="section-header text-center mb-5">
-              <h2>Placement Statistics</h2>
-              <p>{COLLEGE_INFO.name} placement achievements</p>
+            <div className="section-header">
+              <h2>Placement Performance</h2>
+              <p>Our record of excellence in placement management</p>
             </div>
             
-            <div className="row justify-content-center">
+            <div className="row g-4">
               {/* First stat */}
-              <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div className="col-lg-3 col-md-6 col-sm-12">
                 <div className="stat-card" data-aos="fade-up" data-aos-delay="100">
                   <div className="stat-icon">
                     <i className="fas fa-user-graduate"></i>
                   </div>
                   <div className="stat-content">
-                    <h3><span className="counter">{statistics.totalPlacements}</span>+</h3>
-                    <p>Students Placed</p>
+                    <h3><span className="counter">{statistics.totalPlacements}+</span></h3>
+                    <p>Successful Placements</p>
                     <div className="stat-progress">
-                      <div className="progress-bar" style={{width: '85%'}}></div>
+                      <div className="progress-bar" style={{width: '92%'}}></div>
                     </div>
                     <span className="trend-indicator positive">
-                      <i className="fas fa-arrow-up"></i> 12% increase
+                      <i className="fas fa-arrow-up"></i> 18% increase
                     </span>
                   </div>
                 </div>
               </div>
               
               {/* Second stat */}
-              <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div className="col-lg-3 col-md-6 col-sm-12">
                 <div className="stat-card" data-aos="fade-up" data-aos-delay="200">
                   <div className="stat-icon">
-                    <i className="fas fa-rupee-sign"></i>
+                    <i className="fas fa-chart-line"></i>
                   </div>
                   <div className="stat-content">
-                    <h3><span className="counter">{statistics.averageCTC}</span> LPA</h3>
-                    <p>Average Package</p>
+                    <h3><span className="counter">₹{statistics.avgSalary}L</span></h3>
+                    <p>Average CTC</p>
                     <div className="stat-progress">
-                      <div className="progress-bar" style={{width: '75%'}}></div>
+                      <div className="progress-bar" style={{width: '85%'}}></div>
                     </div>
                     <span className="trend-indicator positive">
                       <i className="fas fa-arrow-up"></i> 7% increase
@@ -469,7 +568,7 @@ function Home() {
               </div>
               
               {/* Third stat */}
-              <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div className="col-lg-3 col-md-6 col-sm-12">
                 <div className="stat-card" data-aos="fade-up" data-aos-delay="300">
                   <div className="stat-icon">
                     <i className="fas fa-medal"></i>
@@ -488,14 +587,14 @@ function Home() {
               </div>
               
               {/* Fourth stat */}
-              <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+              <div className="col-lg-3 col-md-6 col-sm-12">
                 <div className="stat-card" data-aos="fade-up" data-aos-delay="400">
                   <div className="stat-icon">
                     <i className="fas fa-building"></i>
                   </div>
                   <div className="stat-content">
-                    <h3><span className="counter">50+</span></h3>
-                    <p>Campus Recruiters</p>
+                    <h3><span className="counter">150+</span></h3>
+                    <p>Partner Companies</p>
                     <div className="stat-progress">
                       <div className="progress-bar" style={{width: '80%'}}></div>
                     </div>
@@ -519,45 +618,17 @@ function Home() {
         {/* Featured Companies Section */}
         <section className="featured-companies-section">
           <div className="container">
-            <div className="section-header text-center mb-5">
-              <h2>Campus Recruiters</h2>
-              <p>Top organizations that recruit from {COLLEGE_INFO.name}</p>
+            <div className="section-header">
+              <h2>Featured Companies</h2>
+              <p>Top organizations that trust our candidates</p>
             </div>
             
-            <div className="row justify-content-center">
+            <div className="row">
               {featuredCompanies && featuredCompanies.length > 0 ? (
                 <>
                   {featuredCompanies.map((company, index) => (
-                    <div className="col-lg-3 col-md-4 col-sm-6 mb-4" key={company.id || index}>
+                    <div className="col-lg-4 col-md-6 col-sm-12" key={company.id || index}>
                       <div className="company-card" style={{ animationDelay: `${0.1 + (index * 0.1)}s` }}>
                         <div className="company-logo">
                           <img 
-                            src={COMPANY_LOGOS[company.name] || `https://via.placeholder.com/150x80/eaeefd/3a57e8?text=${company.name}`} 
-                            alt={`${company.name} logo`}
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = 'https://via.placeholder.com/150x80/eaeefd/3a57e8?text=Company+Logo';
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </>
-              ) : (
-                <div className="text-center">No featured companies found</div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* College Footer Note */}
-        <div className="college-footer-note">
-          <p className="mb-0"> {new Date().getFullYear()} {COLLEGE_INFO.name} - For internal campus use only</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default Home;
+                            src={COMPANY_LOGOS[company.name] || `

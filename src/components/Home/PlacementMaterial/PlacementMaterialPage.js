@@ -1,81 +1,19 @@
-import { useState, useEffect, useContext, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "../../../api/axiosConfig.js";
 import { useNavigate } from "react-router-dom";
-import { DarkModeContext } from "../../../App.js";
 import Navbar from "../HomeComponents/Navbar.js";
 import Footer from "../HomeComponents/Footer.js";
 import "../Home-CSS/Faq.css";
 import "./PlacementMaterial.css";
 
-// Add this array of placeholder companies near the top of the file, before the component function
-const PLACEHOLDER_COMPANIES = [
-  {
-    _id: 'google-placeholder',
-    name: 'Google',
-    jobprofile: 'Software Engineer',
-    description: 'Learn how to prepare for Google\'s technical interviews, coding challenges, and system design questions.',
-    rolesAndResponsibilities: [
-      'Frontend Development', 
-      'Backend Development', 
-      'Full Stack Development'
-    ]
-  },
-  {
-    _id: 'microsoft-placeholder',
-    name: 'Microsoft',
-    jobprofile: 'Software Development Engineer',
-    description: 'Detailed preparation guide for Microsoft\'s interview process, including coding problems and behavioral questions.',
-    rolesAndResponsibilities: [
-      'Cloud Engineering', 
-      'DevOps', 
-      'Machine Learning'
-    ]
-  },
-  {
-    _id: 'amazon-placeholder',
-    name: 'Amazon',
-    jobprofile: 'SDE & Product Management',
-    description: 'Comprehensive roadmap to navigate Amazon\'s leadership principles and technical assessment process.',
-    rolesAndResponsibilities: [
-      'Product Management', 
-      'Data Science', 
-      'Software Development'
-    ]
-  },
-  {
-    _id: 'meta-placeholder',
-    name: 'Meta',
-    jobprofile: 'Software Engineer',
-    description: 'Strategic approach to Meta\'s interview rounds, focusing on algorithms, coding, and product sense.',
-    rolesAndResponsibilities: [
-      'React Development', 
-      'Mobile Engineering', 
-      'Infrastructure'
-    ]
-  },
-  {
-    _id: 'apple-placeholder',
-    name: 'Apple',
-    jobprofile: 'Software & Hardware Engineering',
-    description: 'Preparation guide for Apple\'s unique interview style, focusing on both technical skills and creative problem-solving.',
-    rolesAndResponsibilities: [
-      'iOS Development', 
-      'Hardware Integration', 
-      'UI/UX Design'
-    ]
-  },
-  {
-    _id: 'netflix-placeholder',
-    name: 'Netflix',
-    jobprofile: 'Engineering & Content Development',
-    description: 'Insights into Netflix\'s culture-focused interviews and technical assessments for engineering roles.',
-    rolesAndResponsibilities: [
-      'Content Delivery', 
-      'Platform Engineering', 
-      'Data Engineering'
-    ]
+// Utility function to truncate text
+const truncateText = (text, maxLength) => {
+  if (!text) return '';
+  if (text.length <= maxLength) {
+    return text;
   }
-];
+  return text.substring(0, maxLength) + "...";
+};
 
 function PlacementMaterialPage() {
   const [companies, setCompanies] = useState([]);
@@ -96,119 +34,36 @@ function PlacementMaterialPage() {
   // Add state for saved roadmaps
   const [savedRoadmaps, setSavedRoadmaps] = useState([]);
   
-  // Use the dark mode context
-  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+
   
   const navigate = useNavigate();
 
   // Add this reference to track mounting/unmounting
   const companiesGridRef = useRef(null);
   
-  // Add this effect to log when component renders/rerenders
-  useEffect(() => {
-    console.log("PlacementMaterialPage rendered", { 
-      companiesLength: companies?.length,
-      // Only log filteredCompanies if it's defined
-      ...(typeof filteredCompanies !== 'undefined' ? { filteredCompaniesLength: filteredCompanies?.length } : {}),
-      loading,
-      selectedCompany
-    });
-    
-    // Return cleanup to detect unmounting
-    return () => {
-      console.log("PlacementMaterialPage unmounting");
-    };
-  }, [companies, loading, selectedCompany]); // Remove filteredCompanies from dependency array
-
-  // Define loadSampleCompanies first without dependencies
-  const loadSampleCompanies = useCallback(() => {
-    console.log("Loading sample companies data");
-    
-    const sampleCompanies = [
-      {
-        _id: "sample1",
-        name: "Google",
-        jobprofile: "Software Engineer",
-        description: "Join Google's engineering team to work on cutting-edge technology and products used by billions of people worldwide.",
-        rolesAndResponsibilities: [
-          "Develop and maintain Google's core search algorithms",
-          "Design and implement scalable distributed systems",
-          "Write efficient, maintainable, and reusable code",
-          "Collaborate with cross-functional teams to define and implement product features"
-        ]
-      },
-      {
-        _id: "sample2",
-        name: "Microsoft",
-        jobprofile: "Frontend Developer",
-        description: "Build beautiful, fast, and responsive user interfaces for Microsoft's suite of productivity applications.",
-        rolesAndResponsibilities: [
-          "Create responsive UI components using modern JavaScript frameworks",
-          "Implement UI designs with pixel-perfect accuracy and attention to detail",
-          "Optimize web applications for maximum performance",
-          "Work with UX designers to improve user experience"
-        ]
-      },
-      {
-        _id: "sample3",
-        name: "Amazon",
-        jobprofile: "Full Stack Developer",
-        description: "Build and deploy end-to-end solutions for Amazon's e-commerce platform and related services.",
-        rolesAndResponsibilities: [
-          "Design and develop RESTful APIs and microservices",
-          "Create responsive and interactive web applications",
-          "Implement database schemas and optimize queries",
-          "Participate in all phases of software development lifecycle"
-        ]
-      },
-      {
-        _id: "sample4",
-        name: "IDFC Bank",
-        jobprofile: "Software Developer",
-        description: "Develop secure, reliable, and efficient banking software solutions for IDFC Bank's digital platforms.",
-        rolesAndResponsibilities: [
-          "Develop and maintain banking applications with focus on security",
-          "Implement payment processing and transaction management systems",
-          "Create data analytics and reporting solutions",
-          "Ensure compliance with financial regulations and security standards"
-        ]
-      },
-      {
-        _id: "sample5",
-        name: "TCS",
-        jobprofile: "System Analyst",
-        description: "Analyze, design, and implement IT solutions for TCS's global clients across various industries.",
-        rolesAndResponsibilities: [
-          "Analyze business requirements and translate them into technical specifications",
-          "Design and implement enterprise-scale applications",
-          "Troubleshoot complex system issues",
-          "Provide technical support and documentation"
-        ]
-      }
-    ];
-    
-    setCompanies(sampleCompanies);
-    setLoading(false);
-  }, []);
-
-  // Now define fetchCompanies with a dependency on loadSampleCompanies
+  // Modified fetchCompanies to not use sample data fallback
   const fetchCompanies = useCallback(async () => {
     try {
+      console.log("Making request to get companies...");
       const response = await axios.get("/auth/getCompanies");
+      console.log("Full API response:", response);
+      
       if (response.data && response.data.data && response.data.data.length > 0) {
         console.log("API returned companies:", response.data.data);
+        console.log("First company sample:", response.data.data[0]);
         setCompanies(response.data.data);
-        setLoading(false);
       } else {
-        console.log("API returned no companies, loading samples");
-        loadSampleCompanies();
+        console.log("API returned no companies, response data:", response.data);
+        setError("No companies available. Please check back later.");
       }
+      setLoading(false);
     } catch (err) {
       console.error("Error fetching companies:", err);
-      setError("Failed to load companies. Using sample data instead.");
-      loadSampleCompanies();
+      console.error("Error details:", err.response || err.message || err);
+      setError("Failed to load companies. Please try again later.");
+      setLoading(false);
     }
-  }, [loadSampleCompanies]);  // Add loadSampleCompanies as a dependency
+  }, []); // Removed loadSampleCompanies dependency
 
   // Define fetchRoadmaps using useCallback
   const fetchRoadmaps = useCallback(async () => {
@@ -236,25 +91,9 @@ function PlacementMaterialPage() {
     }
   }, []);
 
-  // Add a useEffect specifically to handle the company state
-  useEffect(() => {
-    // If we don't have companies yet, initialize with placeholder companies
-    if (!companies || companies.length === 0) {
-      console.log("No companies loaded, using placeholders");
-      setCompanies(PLACEHOLDER_COMPANIES);
-      setLoading(false);
-    }
-  }, [companies]);
-
   // Modify the verifyAndFetchData function to be more resilient
   const verifyAndFetchData = useCallback(async () => {
     try {
-      // Start with setting placeholder data to provide immediate content
-      if (!companies || companies.length === 0) {
-        console.log("Loading sample companies data (initialization)");
-        loadSampleCompanies();
-      }
-      
       // Get the email from localStorage
       const userEmail = localStorage.getItem('userEmail');
       const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -292,28 +131,29 @@ function PlacementMaterialPage() {
         // Continue with local data if auth check fails
       }
       
-      // Then try to fetch real data
-      try {
-        await fetchCompanies();
-      } catch (fetchError) {
-        console.error("Failed to fetch companies:", fetchError);
-        // Fallback to sample data
-        loadSampleCompanies();
-      }
-      
-      try {
-        await fetchRoadmaps();
-      } catch (roadmapsError) {
-        console.error("Failed to fetch roadmaps:", roadmapsError);
-        // Non-critical, continue
-      }
-      
-      // Fetch saved roadmaps for the user
-      try {
-        await fetchSavedRoadmaps();
-      } catch (savedError) {
-        console.error("Failed to fetch saved roadmaps:", savedError);
-        // Non-critical, continue
+      // Fetch data only if it hasn't been loaded already
+      if (loading) {
+        try {
+          await fetchCompanies();
+        } catch (fetchError) {
+          console.error("Failed to fetch companies:", fetchError);
+          // Fallback to sample data
+          fetchCompanies();
+        }
+        
+        try {
+          await fetchRoadmaps();
+        } catch (roadmapsError) {
+          console.error("Failed to fetch roadmaps:", roadmapsError);
+          // Non-critical, continue
+        }
+        
+        try {
+          await fetchSavedRoadmaps();
+        } catch (savedError) {
+          console.error("Failed to fetch saved roadmaps:", savedError);
+          // Non-critical, continue
+        }
       }
       
       // Ensure loading is set to false no matter what
@@ -321,10 +161,10 @@ function PlacementMaterialPage() {
     } catch (err) {
       console.error("Verification error:", err);
       setError("An error occurred. Using local data.");
-      loadSampleCompanies();
+      fetchCompanies();
       setLoading(false);
     }
-  }, [navigate, fetchCompanies, fetchRoadmaps, fetchSavedRoadmaps, loadSampleCompanies, companies]);
+  }, [navigate, fetchCompanies, fetchRoadmaps, fetchSavedRoadmaps]); // Removed companies from dependency array
 
   // Replace the existing useEffect with our new implementation
   useEffect(() => {
@@ -335,43 +175,143 @@ function PlacementMaterialPage() {
   const toggleSaveRoadmap = async (roadmapId) => {
     try {
       // Display loading state
-      setError("Saving roadmap...");
+      setError("Processing roadmap...");
       
-      // Prevent saving sample roadmaps
-      if (roadmapId.startsWith('sample')) {
-        setError("Cannot save sample roadmaps. Please use a generated roadmap instead.");
+      // Find the roadmap details to save to profile
+      let roadmapToSave = roadmaps.find(r => r._id === roadmapId);
+      
+      // If roadmap not found in the roadmaps array, create a temporary one based on the selected company
+      if (!roadmapToSave && selectedCompany) {
+        console.log("Creating temporary roadmap based on selected company:", selectedCompany);
+        const company = companies.find(c => c._id === selectedCompany);
+        if (company) {
+          roadmapToSave = {
+            _id: roadmapId,
+            title: `${company.companyname || company.name} Career Path`,
+            description: `A comprehensive learning roadmap for ${company.jobprofile || 'professional'} roles at ${company.companyname || company.name}.`,
+            companyId: company._id,
+            skills: [
+              { name: "Technical Skills", description: "Core technical competencies required for this role" },
+              { name: "Soft Skills", description: "Important non-technical skills for career growth" },
+              { name: `${company.companyname || company.name} Specific Knowledge`, description: `Learn about ${company.companyname || company.name}'s products, culture, and interview process` }
+            ]
+          };
+        }
+      }
+      
+      if (!roadmapToSave) {
+        setError("Roadmap not found.");
         setTimeout(() => setError(null), 3000);
         return;
       }
       
-      const response = await axios.post(`/roadmap/save/${roadmapId}`);
+      // Get user ID from localStorage
+      const userId = localStorage.getItem('userId');
+      const userEmail = localStorage.getItem('userEmail');
       
-      if (response.data) {
-        if (response.data.isSaved) {
-          setSavedRoadmaps(prev => [...prev, roadmapId]);
-          setError("Roadmap saved successfully!");
+      if (!userId && !userEmail) {
+        setError("Please login to save roadmaps");
+        setTimeout(() => setError(null), 3000);
+        return;
+      }
+      
+      // Check if already saved
+      const isSaved = savedRoadmaps.includes(roadmapId);
+      console.log(`Roadmap ${roadmapId} is ${isSaved ? 'already saved' : 'not saved yet'}`);
+      
+      // Prepare roadmap data for saving
+      const roadmapData = {
+        roadmapId,
+        userId: userId,
+        userEmail: userEmail,
+        title: roadmapToSave.title || 'Career Preparation Path',
+        description: roadmapToSave.description || 'Follow this structured learning path to prepare for your interviews.',
+        company: roadmapToSave.companyId ? 
+          (typeof roadmapToSave.companyId === 'object' ? 
+            roadmapToSave.companyId.companyname || roadmapToSave.companyId.name : 
+            companies.find(c => c._id === roadmapToSave.companyId)?.companyname || 'Unknown Company') : 
+          'Custom Roadmap',
+        savedAt: new Date().toISOString(),
+        skills: roadmapToSave.skills || []
+      };
+      
+      // First update local state and localStorage before attempting API call
+      // This ensures a responsive UI even if the API is slow or fails
+      if (!isSaved) {
+        // Add to saved roadmaps in state
+        setSavedRoadmaps(prev => [...prev, roadmapId]);
+        
+        // Save to localStorage
+        const savedRoadmapsInStorage = JSON.parse(localStorage.getItem('savedRoadmaps') || '[]');
+        savedRoadmapsInStorage.push(roadmapData);
+        localStorage.setItem('savedRoadmaps', JSON.stringify(savedRoadmapsInStorage));
+        
+        setError("Roadmap saved to your profile!");
+      } else {
+        // Remove from saved roadmaps in state
+        setSavedRoadmaps(prev => prev.filter(id => id !== roadmapId));
+        
+        // Remove from localStorage
+        const savedRoadmapsInStorage = JSON.parse(localStorage.getItem('savedRoadmaps') || '[]');
+        const updatedRoadmaps = savedRoadmapsInStorage.filter(r => r.roadmapId !== roadmapId);
+        localStorage.setItem('savedRoadmaps', JSON.stringify(updatedRoadmaps));
+        
+        setError("Roadmap removed from saved list");
+      }
+      
+      // Now attempt the API call
+      try {
+        // Make API call to save or remove roadmap
+        const endpoint = isSaved ? `/roadmap/unsave/${roadmapId}` : `/roadmap/save`;
+        console.log(`Attempting API call to ${endpoint}`, roadmapData);
+        
+        const response = await axios.post(endpoint, roadmapData);
+        
+        console.log(`API response from ${endpoint}:`, response.data);
+        
+        // API call succeeded, no need to do anything else as we've already updated the UI
+        // Just update the message to confirm it was saved to the server
+        if (!isSaved) {
+          setError("Roadmap saved to your profile and synced with server!");
         } else {
-          setSavedRoadmaps(prev => prev.filter(id => id !== roadmapId));
-          setError("Roadmap removed from saved items!");
+          setError("Roadmap removed from your profile and synced with server!");
         }
         
-        // Clear success message after 3 seconds
-        setTimeout(() => setError(null), 3000);
+      } catch (apiError) {
+        console.error(`API error when calling ${isSaved ? 'unsave' : 'save'} endpoint:`, apiError);
+        
+        // Since we've already updated the local state and localStorage,
+        // just inform the user that it's only saved locally
+        if (!isSaved) {
+          setError("Roadmap saved locally (server sync failed)");
+        } else {
+          setError("Roadmap removed locally (server sync failed)");
+        }
+        
+        // Create a memory of this failed API call for analytics
+        try {
+          const failedApiData = {
+            endpoint: isSaved ? `/roadmap/unsave/${roadmapId}` : `/roadmap/save`,
+            timestamp: new Date().toISOString(),
+            error: apiError.message || 'Unknown error',
+            roadmapId: roadmapId
+          };
+          
+          const failedApiCalls = JSON.parse(localStorage.getItem('failedApiCalls') || '[]');
+          failedApiCalls.push(failedApiData);
+          localStorage.setItem('failedApiCalls', JSON.stringify(failedApiCalls));
+        } catch (storageError) {
+          console.error("Error storing failed API call data:", storageError);
+        }
       }
-    } catch (err) {
-      console.error("Error saving roadmap:", err);
       
-      // Check for specific error types
-      if (err.response && err.response.status === 401) {
-        setError("Please login to save roadmaps");
-      } else if (err.response && err.response.status === 404) {
-        setError("Roadmap not found. It may have been deleted.");
-      } else {
-        setError("Failed to save roadmap. Please try again later.");
-      }
+      // Clear error message after a delay
+      setTimeout(() => setError(null), 3000);
       
-      // Keep error message visible for a bit longer
-      setTimeout(() => setError(null), 5000);
+    } catch (error) {
+      console.error("Unexpected error in toggleSaveRoadmap:", error);
+      setError("An unexpected error occurred. Please try again.");
+      setTimeout(() => setError(null), 3000);
     }
   };
 
@@ -395,10 +335,11 @@ function PlacementMaterialPage() {
     }
     
     return companies.filter(company => {
-      if (!company || !company.name) return false;
+      if (!company) return false;
       
-      const companyName = company.name.toLowerCase();
-      const jobProfile = company.jobprofile ? company.jobprofile.toLowerCase() : '';
+      // Fix: Check for companyname instead of name
+      const companyName = (company.companyname || company.name || '').toLowerCase();
+      const jobProfile = (company.jobprofile || '').toLowerCase();
       
       const nameMatch = companyName.includes(normalizedQuery);
       const profileMatch = jobProfile.includes(normalizedQuery);
@@ -408,14 +349,27 @@ function PlacementMaterialPage() {
   }, [companies]);
   
   // Filter companies based on search query
-  const filteredCompanies = filterCompanies(searchQuery);
-
+  const filteredCompanies = companies && companies.length > 0 ? filterCompanies(searchQuery) : [];
+  
+  // Single useEffect for logging state changes
   useEffect(() => {
-    console.log("Current companies:", companies);
-    console.log("Search query:", searchQuery);
-    console.log("Filtered companies:", filteredCompanies);
-  }, [companies, searchQuery, filteredCompanies]);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("State updated:", { 
+        companiesLength: companies?.length,
+        searchQuery,
+        filteredCompaniesLength: filteredCompanies?.length,
+        loading,
+        selectedCompany
+      });
+    }
+    
+    // Return cleanup to detect unmounting
+    return () => {
+      console.log("PlacementMaterialPage unmounting");
+    };
+  }, [companies, searchQuery, filteredCompanies, loading, selectedCompany]);
 
+  // Make handleCompanySelect async
   const handleCompanySelect = async (companyId) => {
     setSelectedCompany(companyId);
     setSelectedRoadmap(null);
@@ -437,9 +391,9 @@ function PlacementMaterialPage() {
           // Create a sample roadmap for this company
           const sampleRoadmap = {
             _id: `sample-roadmap-${companyId}`,
-            title: `${company.name} Career Path`,
-            description: `A comprehensive learning roadmap for ${company.jobprofile} roles at ${company.name}.`,
-            companyId: { _id: companyId, name: company.name },
+            title: `${company.companyname || company.name} Career Path`,
+            description: `A comprehensive learning roadmap for ${company.jobprofile} roles at ${company.companyname || company.name}.`,
+            companyId: { _id: companyId, name: company.companyname || company.name },
             skills: [
               {
                 _id: "skill-1",
@@ -487,23 +441,23 @@ function PlacementMaterialPage() {
               },
               {
                 _id: "skill-3",
-                name: `${company.name} Specific Knowledge`,
-                description: `Learn about ${company.name}'s products, culture, and interview process`,
+                name: `${company.companyname || company.name} Specific Knowledge`,
+                description: `Learn about ${company.companyname || company.name}'s products, culture, and interview process`,
                 resources: [
                   {
                     _id: "resource-6",
                     title: "Company Overview",
-                    description: `Understand ${company.name}'s business model, products, and services.`,
-                    link: company.name === "Google" ? "https://about.google/" :
-                          company.name === "Microsoft" ? "https://www.microsoft.com/en-us/about" :
-                          company.name === "Amazon" ? "https://www.aboutamazon.com/" :
-                          company.name === "Apple" ? "https://www.apple.com/about/" :
+                    description: `Understand ${company.companyname || company.name}'s business model, products, and services.`,
+                    link: (company.companyname || company.name) === "Google" ? "https://about.google/" :
+                          (company.companyname || company.name) === "Microsoft" ? "https://www.microsoft.com/en-us/about" :
+                          (company.companyname || company.name) === "Amazon" ? "https://www.aboutamazon.com/" :
+                          (company.companyname || company.name) === "Apple" ? "https://www.apple.com/about/" :
                           "https://about.meta.com/"
                   },
                   {
                     _id: "resource-7",
                     title: "Interview Preparation",
-                    description: `Tips and practice questions specific to ${company.name} interviews.`,
+                    description: `Tips and practice questions specific to ${company.companyname || company.name} interviews.`,
                     link: "https://www.interviewcake.com/"
                   }
                 ]
@@ -523,7 +477,7 @@ function PlacementMaterialPage() {
       const company = companies.find(c => c && c._id === companyId);
       if (company) {
         // Extract company name and job profile from company object
-        const companyName = company.name || "the company";
+        const companyName = company.companyname || company.name || "the company";
         const jobProfile = company.jobprofile || "the role";
         
         // Generate skills based on job profile and roles
@@ -630,164 +584,18 @@ function PlacementMaterialPage() {
     }
   };
 
-  // Helper function to generate course recommendations based on skill
-  const generateCourseRecommendations = (skillName) => {
-    // Map skills to specific course platforms and topics
-    const courseMap = {
-      'JavaScript': [
-        { platform: 'Udemy', title: 'Modern JavaScript From The Beginning', url: 'https://www.youtube.com/watch?v=PkZNo7MFNFg', description: 'Learn modern JavaScript with this comprehensive course covering ES6+ features and practical projects.' },
-        { platform: 'Coursera', title: 'JavaScript for Beginners', url: 'https://www.youtube.com/watch?v=W6NZfCO5SIk', description: 'University-backed JavaScript course covering fundamentals to advanced concepts.' }
-      ],
-      'React': [
-        { platform: 'Udemy', title: 'React - The Complete Guide', url: 'https://www.youtube.com/watch?v=Ke90Tje7VS0', description: 'Master React, Redux, Hooks, Context API and build powerful, modern applications.' },
-        { platform: 'Scrimba', title: 'The React Bootcamp', url: 'https://www.youtube.com/watch?v=QFaFIcGhPoM', description: 'Interactive React course with coding challenges and real-world projects.' }
-      ],
-      'Node.js': [
-        { platform: 'Udemy', title: 'Node.js API Masterclass', url: 'https://www.youtube.com/watch?v=fBNz5xF-Kx4', description: 'Build an extensive RESTful API using Node.js, Express, MongoDB and more.' },
-        { platform: 'edX', title: 'Server-side Development with NodeJS', url: 'https://www.youtube.com/watch?v=TlB_eWDSMt4', description: 'Learn server-side JavaScript using Node.js, Express, and MongoDB.' }
-      ],
-      'Python': [
-        { platform: 'Coursera', title: 'Python for Everybody', url: 'https://www.youtube.com/watch?v=8DvywoWv6fI', description: 'Start from zero and learn Python programming and data analysis.' },
-        { platform: 'edX', title: 'Introduction to Python Programming', url: 'https://www.youtube.com/watch?v=rfscVS0vtbw', description: 'Learn the basics of Python programming through hands-on exercises.' }
-      ],
-      'Machine Learning': [
-        { platform: 'Coursera', title: 'Machine Learning by Andrew Ng', url: 'https://www.youtube.com/watch?v=jGwO_UgTS7I', description: 'The most popular machine learning course taught by Stanford professor Andrew Ng.' },
-        { platform: 'edX', title: 'Machine Learning Fundamentals', url: 'https://www.youtube.com/watch?v=KNAWp2S3w94', description: 'Learn the core concepts of machine learning and apply them to real-world problems.' }
-      ],
-      'Cloud': [
-        { platform: 'Coursera', title: 'AWS Fundamentals', url: 'https://www.youtube.com/watch?v=ulprqHHWlng', description: 'Comprehensive introduction to AWS cloud services and architecture.' },
-        { platform: 'Udemy', title: 'Azure Fundamentals', url: 'https://www.youtube.com/watch?v=NKEFWyqJ5XA', description: 'Prepare for the AZ-900 certification with hands-on Azure training.' }
-      ],
-      'Data Structures': [
-        { platform: 'Coursera', title: 'Data Structures and Algorithms', url: 'https://www.youtube.com/watch?v=RBSGKlAvoiM', description: 'Master essential data structures and algorithms for coding interviews.' },
-        { platform: 'edX', title: 'Algorithms and Data Structures', url: 'https://www.youtube.com/watch?v=8hly31xKli0', description: 'Learn algorithmic techniques and solve computational problems efficiently.' }
-      ],
-      'HTML/CSS': [
-        { platform: 'Udemy', title: 'Web Development Bootcamp', url: 'https://www.youtube.com/watch?v=mU6anWqZJcc', description: 'Complete web development bootcamp covering HTML, CSS, JavaScript and more.' },
-        { platform: 'freeCodeCamp', title: 'Responsive Web Design', url: 'https://www.youtube.com/watch?v=1Rs2ND1ryYc', description: 'Learn to create responsive web designs using HTML and CSS from scratch.' }
-      ],
-      'SQL': [
-        { platform: 'Udemy', title: 'The Complete SQL Bootcamp', url: 'https://www.youtube.com/watch?v=HXV3zeQKqGY', description: 'Master SQL for data analysis and database management with PostgreSQL.' },
-        { platform: 'Coursera', title: 'SQL for Data Science', url: 'https://www.youtube.com/watch?v=BPHAr4QGGVE', description: 'Learn how to use SQL for effective data manipulation and analysis.' }
-      ],
-      'AWS': [
-        { platform: 'Coursera', title: 'AWS Fundamentals', url: 'https://www.youtube.com/watch?v=ulprqHHWlng', description: 'Introduction to AWS Cloud Services, architecture, and best practices.' },
-        { platform: 'Udemy', title: 'AWS Certified Solutions Architect', url: 'https://www.youtube.com/watch?v=Ia-UEYYR44s', description: 'Comprehensive course to prepare for the AWS Solutions Architect certification.' }
-      ]
-    };
-    
-    // Default recommendations if skill is not in the map
-    const defaultCourses = [
-      {
-        _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-course1`,
-        title: `${skillName} Essential Training`,
-        type: 'video',
-        url: `https://www.youtube.com/watch?v=videoseries?search_query=${encodeURIComponent(skillName + " course introduction")}`,
-        description: `Comprehensive course on ${skillName} from Udemy's top instructors.`,
-        platform: 'Udemy'
-      },
-      {
-        _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-course2`,
-        title: `${skillName} Specialization`,
-        type: 'video',
-        url: `https://www.youtube.com/watch?v=videoseries?search_query=${encodeURIComponent(skillName + " tutorial for beginners")}`,
-        description: `University-backed courses on ${skillName} with certificates upon completion.`,
-        platform: 'Coursera'
-      }
-    ];
-    
-    // Check if the skill has specific course recommendations
-    for (const [key, courses] of Object.entries(courseMap)) {
-      if (skillName.toLowerCase().includes(key.toLowerCase())) {
-        return courses.map((course, index) => ({
-          _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-course${index + 1}`,
-          title: course.title,
-          type: 'video',
-          url: course.url,
-          description: `${course.platform} course on ${skillName}: ${course.description}`,
-          platform: course.platform
-        }));
-      }
-    }
-    
-    // Return default courses if no specific recommendations found
-    return defaultCourses;
-  };
-  
-  // Helper function to generate more comprehensive sample resources for a skill
+  // Make this a synchronous function that returns static resources
   const generateSampleResources = (skillName) => {
+    // Get static resources for this skill
     const resources = [];
     
-    // Map skills to specific video tutorials 
-    const videoTutorialMap = {
-      'JavaScript': [
-        { type: 'video', title: 'JavaScript Fundamentals', url: 'https://www.youtube.com/watch?v=W6NZfCO5SIk', description: 'Learn JavaScript fundamentals in this comprehensive beginner tutorial.' },
-        { type: 'video', title: 'Advanced JavaScript Concepts', url: 'https://www.youtube.com/watch?v=R8rmfD9Y5-c', description: 'Dive into advanced JavaScript concepts like closures, prototypes, and async programming.' }
-      ],
-      'React': [
-        { type: 'video', title: 'React Tutorial for Beginners', url: 'https://www.youtube.com/watch?v=SqcY0GlETPk', description: 'Learn React fundamentals by building a complete app from scratch.' },
-        { type: 'video', title: 'React Hooks Masterclass', url: 'https://www.youtube.com/watch?v=TNhaISOUy6Q', description: 'Comprehensive tutorial on React Hooks and state management.' }
-      ],
-      'Node.js': [
-        { type: 'video', title: 'Node.js Crash Course', url: 'https://www.youtube.com/watch?v=fBNz5xF-Kx4', description: 'Learn the fundamentals of Node.js and build a complete backend application.' },
-        { type: 'video', title: 'RESTful API with Node.js', url: 'https://www.youtube.com/watch?v=pKd0Rpw7O48', description: 'Build a complete RESTful API with Node.js, Express and MongoDB.' }
-      ],
-      'Python': [
-        { type: 'video', title: 'Python Full Course for Beginners', url: 'https://www.youtube.com/watch?v=_uQrJ0TkZlc', description: 'Comprehensive Python tutorial covering all the fundamentals for beginners.' },
-        { type: 'video', title: 'Python for Data Science', url: 'https://www.youtube.com/watch?v=LHBE6Q9XlzI', description: 'Learn how to use Python for data analysis and data science applications.' }
-      ],
-      'HTML/CSS': [
-        { type: 'video', title: 'HTML & CSS Full Course', url: 'https://www.youtube.com/watch?v=mU6anWqZJcc', description: 'Learn HTML and CSS from scratch - build a complete website.' },
-        { type: 'video', title: 'CSS Flexbox & Grid Tutorial', url: 'https://www.youtube.com/watch?v=tXIhdp5R7sc', description: 'Master modern CSS layout techniques with flexbox and grid.' }
-      ],
-      'SQL': [
-        { type: 'video', title: 'SQL Tutorial for Beginners', url: 'https://www.youtube.com/watch?v=HXV3zeQKqGY', description: 'Complete SQL tutorial covering all essential database concepts.' },
-        { type: 'video', title: 'Advanced SQL Techniques', url: 'https://www.youtube.com/watch?v=A0K2QYT8Rd0', description: 'Learn advanced SQL queries, functions and optimization techniques.' }
-      ],
-      'Data Structures': [
-        { type: 'video', title: 'Data Structures Easy to Advanced Course', url: 'https://www.youtube.com/watch?v=RBSGKlAvoiM', description: 'Complete data structures tutorial from basic to advanced concepts.' },
-        { type: 'video', title: 'Data Structures for Coding Interviews', url: 'https://www.youtube.com/watch?v=RBSGKlAvoiM', description: 'Master data structures commonly tested in coding interviews.' }
-      ],
-      'Machine Learning': [
-        { type: 'video', title: 'Machine Learning for Beginners', url: 'https://www.youtube.com/watch?v=KNAWp2S3w94', description: 'Introduction to machine learning concepts and practical applications.' },
-        { type: 'video', title: 'TensorFlow 2.0 Complete Course', url: 'https://www.youtube.com/watch?v=tPYj3fFJGjk', description: 'Build neural networks and deep learning models with TensorFlow 2.0' }
-      ],
-    };
-    
-    // Default video tutorials if skill is not in the map
-    const defaultVideos = [
-      {
-        type: 'video',
-        title: `${skillName} Fundamentals`,
-        url: `https://www.youtube.com/watch?v=videoseries?search_query=${encodeURIComponent(`${skillName} tutorial for beginners`)}`,
-        description: `Learn the fundamentals of ${skillName} with comprehensive video tutorials.`
-      },
-      {
-        type: 'video',
-        title: `Advanced ${skillName} Techniques`,
-        url: `https://www.youtube.com/watch?v=videoseries?search_query=${encodeURIComponent(`advanced ${skillName} tutorial`)}`,
-        description: `Take your ${skillName} skills to the next level with advanced concepts and techniques.`
-      }
-    ];
-    
-    // Get videos for this skill (from the map or defaults)
-    let videos = defaultVideos;
-    for (const [key, mappedVideos] of Object.entries(videoTutorialMap)) {
-      if (skillName.toLowerCase().includes(key.toLowerCase())) {
-        videos = mappedVideos;
-        break;
-      }
-    }
-    
     // Add video tutorials
-    videos.forEach((video, index) => {
-      resources.push({
-        _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-resource${index + 1}`,
-        title: video.title,
-        type: 'video',
-        url: video.url,
-        description: video.description
-      });
+    resources.push({
+      _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-resource1`,
+      title: `${skillName} for Beginners`,
+      type: 'video',
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skillName} tutorial for beginners`)}`,
+      description: `Comprehensive tutorial for learning ${skillName} fundamentals.`
     });
     
     // Add documentation and articles
@@ -799,14 +607,6 @@ function PlacementMaterialPage() {
       description: `Official documentation and guides for learning ${skillName}.`
     });
     
-    resources.push({
-      _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-resource4`,
-      title: `${skillName} Best Practices`,
-      type: 'article',
-      url: `https://medium.com/search?q=${encodeURIComponent(`${skillName} best practices`)}`,
-      description: `Learn industry best practices for ${skillName} from experienced professionals.`
-    });
-    
     // Add interview preparation resources
     resources.push({
       _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-resource5`,
@@ -815,36 +615,6 @@ function PlacementMaterialPage() {
       url: `https://www.google.com/search?q=${encodeURIComponent(`${skillName} interview questions answers`)}`,
       description: `Common ${skillName} interview questions with detailed answers to help you prepare.`
     });
-    
-    // Add project-based learning resources with direct video links
-    const projectVideos = {
-      'JavaScript': 'https://www.youtube.com/watch?v=3PHXvlpOkf4',
-      'Python': 'https://www.youtube.com/watch?v=8ext9G7xspg',
-      'React': 'https://www.youtube.com/watch?v=F2JCjVSZlG0',
-      'Node.js': 'https://www.youtube.com/watch?v=fBNz5xF-Kx4',
-      'HTML/CSS': 'https://www.youtube.com/watch?v=oYRda7UtuhA',
-      'Data Structures': 'https://www.youtube.com/watch?v=RBSGKlAvoiM',
-    };
-    
-    let projectUrl = `https://www.youtube.com/watch?v=videoseries?search_query=${encodeURIComponent(`${skillName} project tutorial`)}`;
-    for (const [key, url] of Object.entries(projectVideos)) {
-      if (skillName.toLowerCase().includes(key.toLowerCase())) {
-        projectUrl = url;
-        break;
-      }
-    }
-    
-    resources.push({
-      _id: `${skillName.replace(/[^a-zA-Z0-9]/g, '')}-resource6`,
-      title: `${skillName} Projects for Practice`,
-      type: 'video',
-      url: projectUrl,
-      description: `Build real-world projects using ${skillName} to enhance your portfolio and practical skills.`
-    });
-    
-    // Add courses from top platforms
-    const courses = generateCourseRecommendations(skillName);
-    resources.push(...courses);
     
     return resources;
   };
@@ -1054,7 +824,7 @@ function PlacementMaterialPage() {
   };
 
   // Update the navigateToCompanyRoadmap function
-  const navigateToCompanyRoadmap = (companyId) => {
+  const navigateToCompanyRoadmap = async (companyId) => {
     // Show message for placeholder companies
     if (companyId.includes('placeholder')) {
       setError("We're currently developing detailed roadmaps for this company. Please check back soon or explore our general resources.");
@@ -1066,7 +836,7 @@ function PlacementMaterialPage() {
     
     // For real companies, use existing functionality
     setSelectedCompany(companyId);
-    handleCompanySelect(companyId);
+    await handleCompanySelect(companyId);
     
     // Scroll to the top of the page for better user experience
     window.scrollTo({
@@ -1462,7 +1232,6 @@ Work with cloud infrastructure on AWS"
               
               {customRoadmap.skills && customRoadmap.skills.length > 0 ? (
                 <div className="skills-section">
-                  <h4 className="skills-heading">Required Skills & Learning Resources</h4>
                   {customRoadmap.skills.map(skill => (
                     <div key={skill._id} className="skill-card">
                       <h5 className="skill-name">
@@ -1565,12 +1334,12 @@ Work with cloud infrastructure on AWS"
             {/* Company Info */}
             {companies && companies.find(c => c._id === selectedCompany) && (
               <div className="selected-company-info">
-                <h2>{companies.find(c => c._id === selectedCompany).name}</h2>
+                <h2>{companies.find(c => c._id === selectedCompany).companyname || companies.find(c => c._id === selectedCompany).name}</h2>
                 <p className="selected-company-profile">
                   {companies.find(c => c._id === selectedCompany).jobprofile || ''}
                 </p>
                 <p className="selected-company-description">
-                  {companies.find(c => c._id === selectedCompany).description || ''}
+                  {companies.find(c => c._id === selectedCompany).jobdescription || companies.find(c => c._id === selectedCompany).description || ''}
                 </p>
               </div>
             )}
@@ -1587,13 +1356,16 @@ Work with cloud infrastructure on AWS"
                   <div key={roadmap._id} className="roadmap-item">
                     <div className="roadmap-header">
                       <h4 className="roadmap-title">{roadmap.title || 'Career Preparation Path'}</h4>
-                      <button 
-                        className={`save-roadmap-btn ${isRoadmapSaved(roadmap._id) ? 'saved' : ''}`}
-                        onClick={() => toggleSaveRoadmap(roadmap._id)}
-                        title={isRoadmapSaved(roadmap._id) ? "Remove from saved roadmaps" : "Save to your profile"}
-                      >
-                        <i className={`fas ${isRoadmapSaved(roadmap._id) ? 'fa-bookmark' : 'fa-bookmark-o'}`}></i>
-                      </button>
+                      <div className="roadmap-actions">
+                        <button 
+                          className={`save-roadmap-btn ${isRoadmapSaved(roadmap._id) ? 'saved' : ''}`}
+                          onClick={() => toggleSaveRoadmap(roadmap._id)}
+                          title={isRoadmapSaved(roadmap._id) ? "Remove from saved roadmaps" : "Save to your profile"}
+                        >
+                          <i className={`fas ${isRoadmapSaved(roadmap._id) ? 'fa-bookmark' : 'fa-bookmark-o'}`}></i>
+                          {isRoadmapSaved(roadmap._id) ? " Saved to Roadmaps" : " Save to Roadmaps"}
+                        </button>
+                      </div>
                     </div>
                     <p className="roadmap-description">{roadmap.description || 'Follow this structured learning path to prepare for your interviews.'}</p>
 
@@ -1673,40 +1445,127 @@ Work with cloud infrastructure on AWS"
               and interview insights specific to their recruitment process.
             </p>
             
-            <div className="companies-grid" ref={companiesGridRef} style={{ minHeight: '400px' }}>
-              {/* Use placeholder companies if filteredCompanies is empty */}
-              {(filteredCompanies && filteredCompanies.length > 0 ? filteredCompanies : PLACEHOLDER_COMPANIES).map(company => {
-                // Ensure we have a valid company object
-                if (!company || !company._id) {
-                  console.log("Invalid company object", company);
-                  return null;
-                }
-                
-                return (
-                  <div key={company._id} className="company-card" style={{ opacity: 1, visibility: 'visible' }}>
-                    <h3 className="company-name">{company.name}</h3>
-                    {company.jobprofile && (
-                      <div className="company-profile">{company.jobprofile}</div>
-                    )}
-                    <p className="company-description">
-                      {company.description || "Explore our curated roadmap to prepare for interviews at this company."}
-                    </p>
-                    
-                    {company.rolesAndResponsibilities && company.rolesAndResponsibilities.length > 0 && (
-                      <div className="company-roles-indicator">
-                        <i className="fas fa-tasks"></i> {company.rolesAndResponsibilities.length} {company.rolesAndResponsibilities.length === 1 ? 'Role' : 'Roles'} Defined
-                      </div>
-                    )}
-                    
-                    <button 
-                      className="company-details-btn"
+            <div className="companies-grid" ref={companiesGridRef} style={{ 
+                 minHeight: '400px',
+                 position: 'relative',
+                 zIndex: 10,
+                 display: 'grid',
+                 gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                 gap: '20px'
+               }}>
+              {console.log("Companies rendering:", companies)}
+              {console.log("Filtered companies:", filteredCompanies)}
+              
+              {filteredCompanies && filteredCompanies.length > 0 ? (
+                // Map through filtered companies
+                filteredCompanies.map(company => {
+                  console.log("Rendering company:", company);
+                  // Ensure we have a valid company object
+                  if (!company || !company._id) {
+                    return null;
+                  }
+                  
+                  return (
+                    <div 
+                      key={company._id} 
+                      className="company-card" 
                       onClick={() => navigateToCompanyRoadmap(company._id)}
+                      style={{
+                        display: 'block',
+                        visibility: 'visible',
+                        background: '#e74c3c',
+                        border: '3px solid #000',
+                        padding: '20px',
+                        borderRadius: '10px',
+                        margin: '0 0 20px 0',
+                        position: 'relative',
+                        zIndex: 20
+                      }}
                     >
-                      <i className="fas fa-road"></i> View Roadmap
-                    </button>
+                      <h3 style={{color: '#fff', fontWeight: 'bold'}}>{company.companyname || "Company Name"}</h3>
+                      <p className="job-profile" style={{color: '#f1c40f', fontWeight: 'bold'}}>{company.jobprofile || "Job Profile"}</p>
+                      <p style={{color: '#fff'}}>{truncateText(company.jobdescription || "Job description not available", 120)}</p>
+                      <button className="view-roadmap-btn" style={{
+                        background: '#2ecc71',
+                        color: '#000',
+                        padding: '10px',
+                        width: '100%',
+                        borderRadius: '5px',
+                        border: '2px solid #000',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}>View Roadmap</button>
+                    </div>
+                  );
+                })
+              ) : loading ? (
+                // Show loading message
+                <div className="loading-container" style={{textAlign: 'center', padding: '30px', width: '100%'}}>
+                  <div className="spinner" style={{marginBottom: '10px'}}>Loading...</div>
+                  <p>Loading companies data...</p>
+                </div>
+              ) : (
+                // If no companies are found and not loading, show mock examples for testing
+                <>
+                  <div className="no-companies-message">
+                    <p>No companies found matching your search criteria or API returned no data.</p>
+                    <p>Please try a different search term or check back later for updated listings.</p>
                   </div>
-                );
-              })}
+                  
+                  {/* Add some mock cards for testing/debugging */}
+                  <div className="company-card" style={{
+                    display: 'block',
+                    visibility: 'visible',
+                    background: '#e74c3c',
+                    border: '3px solid #000',
+                    padding: '20px',
+                    borderRadius: '10px',
+                    margin: '0 0 20px 0',
+                    position: 'relative',
+                    zIndex: 20
+                  }}>
+                    <h3 style={{color: '#fff', fontWeight: 'bold'}}>TEST CARD 1</h3>
+                    <p className="job-profile" style={{color: '#f1c40f', fontWeight: 'bold'}}>Software Engineer</p>
+                    <p style={{color: '#fff'}}>This is a test card to help debug visibility issues. If you can see this, the styling is working.</p>
+                    <button className="view-roadmap-btn" style={{
+                      background: '#2ecc71',
+                      color: '#000',
+                      padding: '10px',
+                      width: '100%',
+                      borderRadius: '5px',
+                      border: '2px solid #000',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}>View Roadmap</button>
+                  </div>
+                  
+                  <div className="company-card" style={{
+                    display: 'block',
+                    visibility: 'visible',
+                    background: '#e74c3c',
+                    border: '3px solid #000',
+                    padding: '20px',
+                    borderRadius: '10px',
+                    margin: '0 0 20px 0',
+                    position: 'relative',
+                    zIndex: 20
+                  }}>
+                    <h3 style={{color: '#fff', fontWeight: 'bold'}}>TEST CARD 2</h3>
+                    <p className="job-profile" style={{color: '#f1c40f', fontWeight: 'bold'}}>Data Scientist</p>
+                    <p style={{color: '#fff'}}>This is another test card with bright styling to ensure visibility.</p>
+                    <button className="view-roadmap-btn" style={{
+                      background: '#2ecc71',
+                      color: '#000',
+                      padding: '10px',
+                      width: '100%',
+                      borderRadius: '5px',
+                      border: '2px solid #000',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}>View Roadmap</button>
+                  </div>
+                </>
+              )}
             </div>
           </>
         )}
@@ -1729,28 +1588,50 @@ Work with cloud infrastructure on AWS"
     }
   };
 
-  // Add dark mode toggle button to the PlacementMaterialPage component
-  const renderDarkModeToggle = () => {
-    return (
-      <button 
-        className="dark-mode-toggle" 
-        onClick={toggleDarkMode} 
-        title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-      >
-        {darkMode ? (
-          <i className="fas fa-sun"></i>
-        ) : (
-          <i className="fas fa-moon"></i>
-        )}
-      </button>
-    );
-  };
+  // Add a special effect to force rerender of company cards after page load
+  useEffect(() => {
+    // This function will force the cards to be visible after a short delay
+    const forceCardsVisible = () => {
+      console.log("Forcing company cards to be visible");
+      const cards = document.querySelectorAll('.company-card');
+      
+      // If there are cards, ensure they're visible
+      if (cards.length > 0) {
+        cards.forEach(card => {
+          card.style.display = 'block';
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
+          card.style.position = 'relative';
+          card.style.zIndex = '999';
+          card.style.backgroundColor = '#e74c3c';
+          card.style.border = '3px solid #000000';
+        });
+        console.log(`Applied forced visibility to ${cards.length} cards`);
+      } else {
+        console.log("No company cards found in DOM to make visible");
+      }
+    };
+
+    // First check if companies are loaded
+    if (companies && companies.length > 0 && !loading) {
+      // Run once immediately
+      forceCardsVisible();
+      
+      // Then run again after a short delay (to catch after rendering)
+      const timer1 = setTimeout(() => forceCardsVisible(), 500);
+      const timer2 = setTimeout(() => forceCardsVisible(), 1000);
+      
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    }
+  }, [companies, loading, filteredCompanies]);
 
   return (
     <div className="placement-material-page">
       <Navbar />
       <div className="placement-material-container">
-        {renderDarkModeToggle()}
         
         <h1 className="placement-material-heading">Placement Resources</h1>
         <p className="placement-material-intro">

@@ -1,13 +1,21 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../Home-CSS/AdminNav.css';
 import { useEffect } from 'react';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  
   function handleLogout() {
-    // Implement logout functionality here
+    // Clear all authentication data
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('isAuthenticated');
+    
+    // Redirect to login page
+    navigate('/login');
   }
   
   // Ensure Bootstrap JS is loaded for mobile menu functionality

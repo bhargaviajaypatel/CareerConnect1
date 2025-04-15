@@ -98,6 +98,12 @@ const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)
 const getRandomFloat = (min, max, decimals = 2) => parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 const getRandomDate = (start, end) => new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
+// Specific User Credentials (Replace with User Input)
+const specificUserEmail = 'student@careerconnect.com'; // Updated as requested
+const specificUserPassword = 'student123'; // Updated as requested
+const adminUserEmail = 'admin@example.com';
+const adminUserPassword = 'adminpass'; // Secure password for admin
+
 // Generate fake users
 const generateFakeUsers = (count) => {
   const users = [];
@@ -228,59 +234,164 @@ const generateFakeInterviewExperiences = (userCount, companyCount) => {
   return experiences;
 };
 
+// ---- Placeholder functions for missing data types ----
+const generateFakeRoadmaps = async (companies) => {
+  console.log('[Seed] Roadmap generation logic needs to be implemented based on Roadmap schema.');
+  // TODO: Import Roadmap model
+  // TODO: Generate roadmaps based on companies, roles, skills
+  // TODO: Return generated roadmaps
+  return [];
+};
+
+const generateFakeStatistics = async (users, companies, interviews) => {
+  console.log('[Seed] Statistics generation logic needs to be implemented based on Statistics schema or aggregated from data.');
+  // TODO: Determine how statistics are stored/calculated
+  // TODO: Generate or calculate statistics
+  // TODO: Return generated statistics
+  return []; // Or maybe insert directly depending on structure
+};
+
+const addSampleDocumentsToUsers = async (users) => {
+  console.log('[Seed] Sample document adding logic needs to be implemented.');
+  // TODO: Define path to sample documents (resumes, certificates)
+  // TODO: Define target path (e.g., ./uploads/user_id/)
+  // TODO: Implement logic to randomly assign documents to users
+  // TODO: Update user documents in the database with file paths/references
+  // Requires fs module for file operations
+  for (const user of users) {
+    // Placeholder: Update user.documents = ['path/to/resume.pdf', 'path/to/cert.pdf']
+    // await User.updateOne({ _id: user._id }, { $set: { documents: [...] } });
+  }
+};
+
 // Main function to seed the database
 const seedData = async () => {
+  console.log('[Seed] Starting database seeding process...');
   try {
-    // Clear existing data
-    await User.deleteMany({ email: { $ne: 'admin@example.com' } }); // Don't delete the admin user
+    // Clear existing data (carefully preserving admin)
+    console.log('[Seed] Clearing existing non-admin users, companies, and interviews...');
+    await User.deleteMany({ email: { $nin: [adminUserEmail] } });
     await Company.deleteMany({});
     await Interview.deleteMany({});
-    
-    console.log('Existing data cleared');
-    
-    // Generate fake data
-    const userCount = 30;
-    const companyCount = 10;
-    
-    const fakeUsers = generateFakeUsers(userCount);
-    const fakeCompanies = generateFakeCompanies(companyCount);
-    const fakeInterviews = generateFakeInterviewExperiences(userCount, companyCount);
-    
-    // Insert fake users
-    await User.insertMany(fakeUsers);
-    console.log(`${userCount} fake users inserted`);
-    
-    // Insert fake companies
-    const insertedCompanies = await Company.insertMany(fakeCompanies);
-    console.log(`${companyCount} fake companies inserted`);
-    
-    // Insert fake interview experiences
-    await Interview.insertMany(fakeInterviews);
-    console.log(`${fakeInterviews.length} fake interview experiences inserted`);
-    
-    // Update users with applied companies
-    const users = await User.find({ email: { $ne: 'admin@example.com' } });
-    const companyIds = insertedCompanies.map(company => company._id);
-    
-    for (const user of users) {
-      // Randomly select 1-5 companies for each user to apply to
-      const appliedCompanyIds = getRandomElements(companyIds, getRandomNumber(1, 5));
-      user.appliedCompanies = appliedCompanyIds;
-      
-      // Randomly set company placed for some users
-      if (user.placementStatus === 'Placed') {
-        const randomCompany = getRandomElement(insertedCompanies);
-        user.companyPlaced = randomCompany.companyname;
-      }
-      
-      await user.save();
+    // TODO: Clear Roadmaps and Statistics if necessary
+    // await Roadmap.deleteMany({});
+    // await StatisticsModel.deleteMany({});
+    console.log('[Seed] Existing data cleared.');
+
+    // --- Create/Ensure Admin User ---
+    let admin = await User.findOne({ email: adminUserEmail });
+    if (!admin) {
+      console.log(`[Seed] Admin user (${adminUserEmail}) not found, creating...`);
+      admin = new User({
+        name: 'Admin User',
+        email: adminUserEmail,
+        password: adminUserPassword,
+        isAdmin: true,
+        // Add other essential fields if required by schema validation
+        contactNumber: '0000000000',
+        sapId: 'ADMIN001',
+        rollNo: 'ADMIN',
+        gender: 'N/A',
+        dob: new Date(),
+        tenthPercentage: 100,
+        tenthSchool: 'N/A',
+        twelfthPercentage: 100,
+        twelfthCollege: 'N/A',
+        graduationCollege: 'N/A',
+        graduationCGPA: 10,
+        stream: 'N/A',
+        sixthSemesterCGPA: 10
+      });
+      await admin.save();
+      console.log(`[Seed] Admin user created with password: ${adminUserPassword}`);
+    } else {
+      console.log(`[Seed] Admin user (${adminUserEmail}) found.`);
+      // Optionally update admin password or details if needed
+      // admin.password = adminUserPassword; // Make sure to handle hashing if pre-save hook exists
+      // await admin.save();
     }
-    console.log('Users updated with applied companies');
+
+    // --- Create Specific User ---
+    let specificUser = await User.findOne({ email: specificUserEmail });
+    if (!specificUser) {
+      console.log(`[Seed] Specific user (${specificUserEmail}) not found, creating...`);
+      specificUser = new User({
+        name: 'Aarav Sharma',
+        email: specificUserEmail,
+        password: specificUserPassword,
+        isAdmin: false,
+        contactNumber: '9876543210',
+        sapId: 'SAP60042',
+        rollNo: 'R2023042',
+        gender: 'Male',
+        dob: new Date('1999-05-15'),
+        tenthPercentage: 92.5,
+        tenthSchool: 'Delhi Public School, New Delhi',
+        twelfthPercentage: 89.8,
+        twelfthCollege: "St. Xavier's College, Mumbai",
+        graduationCollege: 'BITS Pilani',
+        graduationCGPA: 8.7,
+        stream: 'Computer Engineering',
+        sixthSemesterCGPA: 8.9,
+        skills: 'JavaScript, React, Node.js, MongoDB, Express, Python, Java, Data Structures, Algorithms',
+        projects: 'E-commerce Web Application, Machine Learning-based Recommendation System, Portfolio Website, Student Management System',
+        careerPreferences: {
+          interestedCompanies: ['Google India', 'Microsoft India', 'Amazon India', 'Flipkart', 'IBM India'],
+          interestedRoles: ['Software Developer', 'Full Stack Developer', 'Backend Developer'],
+          interestedSkills: ['Cloud Computing', 'Machine Learning', 'Microservices', 'System Design', 'DevOps'],
+          careerGoals: 'To become a skilled full-stack developer and eventually grow into a technical architect role. I aim to work on scalable applications and contribute to open source projects.'
+        },
+        placementStatus: 'Not Placed',
+        appliedCompanies: []
+      });
+      await specificUser.save();
+      console.log(`[Seed] Specific user created with email: ${specificUserEmail}, password: ${specificUserPassword}`);
+    } else {
+      console.log(`[Seed] Specific user (${specificUserEmail}) found.`);
+    }
+
+    // Generate fake data
+    const userCount = 50; // Target ~50 users total (including specific/admin)
+    const companyCount = 15; // Increased company count
+
+    console.log(`[Seed] Generating ${userCount} fake users...`);
+    const fakeUsers = generateFakeUsers(userCount);
+    console.log(`[Seed] Generating ${companyCount} fake companies...`);
+    const fakeCompanies = generateFakeCompanies(companyCount);
+    console.log(`[Seed] Generating fake interview experiences...`);
+    const fakeInterviews = generateFakeInterviewExperiences(userCount + 2, companyCount); // +2 for admin/specific
+    console.log(`[Seed] Generating fake roadmaps (placeholder)...`);
+    const fakeRoadmaps = await generateFakeRoadmaps(fakeCompanies);
+    console.log(`[Seed] Generating fake statistics (placeholder)...`);
+    const fakeStatistics = await generateFakeStatistics([...fakeUsers, specificUser, admin], fakeCompanies, fakeInterviews);
+
+    // Insert fake data
+    console.log('[Seed] Inserting fake users...');
+    const insertedUsers = await User.insertMany(fakeUsers);
+    console.log('[Seed] Inserting fake companies...');
+    const insertedCompanies = await Company.insertMany(fakeCompanies);
+    console.log('[Seed] Inserting fake interviews...');
+    const insertedInterviews = await Interview.insertMany(fakeInterviews);
+    // TODO: Insert Roadmaps
+    // await Roadmap.insertMany(fakeRoadmaps);
+    // TODO: Insert Statistics if applicable
+    // await StatisticsModel.insertMany(fakeStatistics);
+
+    console.log('[Seed] Adding sample documents to users (placeholder)...');
+    await addSampleDocumentsToUsers([...insertedUsers, specificUser]); // Add docs to generated + specific user
+
+    console.log('[Seed] Database seeding completed successfully!');
     
-    console.log('Database seeding completed successfully!');
-    process.exit(0);
   } catch (error) {
-    console.error('Error seeding database:', error);
-    process.exit(1);
+    console.error('[Seed] Error during database seeding:', error);
+  } finally {
+    // Close the MongoDB connection
+    mongoose.connection.close().then(() => {
+      console.log('[Seed] MongoDB connection closed.');
+      process.exit(0);
+    });
   }
-}; 
+};
+
+// Start seeding if the script is run directly
+// (The initial connection logic already calls seedData) 

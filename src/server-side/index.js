@@ -4,12 +4,14 @@ import mongoose from "mongoose";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
+import applySecurityMiddleware from './middleware/security.js';
+import cors from 'cors';
 
 // Routes
-import { UserRouter } from "./routes.js/user.js";
-import { UpdateProfileRouter } from "./routes.js/update-profile.js";
-import { StatisticsRouter } from "./routes.js/statistics.js";
-import { RoadmapRouter } from "./routes.js/roadmap.js";
+import { UserRouter } from "./routes/user.js";
+import { UpdateProfileRouter } from "./routes/update-profile.js";
+import { StatisticsRouter } from "./routes/statistics.js";
+import { RoadmapRouter } from "./routes/roadmap.js";
 import documentRoutes from "./routes/documentRoutes.js";
 
 // Models
@@ -22,13 +24,24 @@ const __dirname = path.dirname(__filename);
 const app = express();
 dotenv.config();
 
+// Middleware setup
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Apply all security middleware using the imported function
+applySecurityMiddleware(app);
+
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Serve files from uploads directory - IMPORTANT for document/resume viewing
+// Serve files from uploads directory
 console.log(`Serving static files from: ${uploadsDir}`);
 app.use('/uploads', express.static(uploadsDir));
 
@@ -38,50 +51,32 @@ if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// Basic middleware - removed security restrictions
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Updated CORS configuration to handle credentials
-app.use((req, res, next) => {
-  // Allow specific origin instead of wildcard for credentials to work
-  const origin = req.headers.origin;
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, user-email');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  next();
-});
-
-// Simple request logging without security checks
+// Request logging
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Routes - security removed from all routes
+// Routes
 app.use("/auth", UserRouter);
 app.use("/profile", UpdateProfileRouter);
 app.use("/statistics", StatisticsRouter);
 app.use("/roadmap", RoadmapRouter);
 app.use("/auth/documents", documentRoutes);
 
+// Basic route to test server
+app.get('/', (req, res) => {
+  res.json({ message: 'Server is running' });
+});
+
 // Serve static files from the React app build folder in production
 if (process.env.NODE_ENV === 'production') {
-  const buildPath = path.resolve(__dirname, '../../build');
+  const buildPath = path.join(process.cwd(), 'build');
   app.use(express.static(buildPath));
 
   // For any route that is not an API route, serve the React app
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(buildPath, 'index.html'));
+    res.sendFile(path.join(buildPath, 'index.html'));
   });
 } else {
   console.log('Running in development mode - using proxy for frontend');
@@ -102,105 +97,60 @@ app.use((req, res) => {
   });
 });
 
-// Function to create test users if they don't exist
-const createTestUsers = async () => {
-  try {
-    // Check if test user already exists
-    const testUserExists = await User.findOne({ email: 'test@example.com' });
-    const adminUserExists = await User.findOne({ email: 'admin@example.com' });
-    
-    // If both users exist, return
-    if (testUserExists && adminUserExists) {
-      console.log('Test users already exist in database');
-      return;
-    }
-    
-    // Create test user if it doesn't exist
-    if (!testUserExists) {
-      const testUser = new User({
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password',
-        contactNumber: '1234567890',
-        sapId: 'TEST001',
-        rollNo: 'R001',
-        gender: 'Other',
-        dob: new Date('1998-01-01'),
-        tenthPercentage: 85,
-        tenthSchool: 'Test School',
-        twelfthPercentage: 80,
-        twelfthCollege: 'Test College',
-        graduationCollege: 'Test University',
-        graduationCGPA: 8.5,
-        stream: 'Computer Engineering',
-        sixthSemesterCGPA: 8.0,
-        isAdmin: false,
-        skills: 'JavaScript, React, Node.js',
-        projects: 'CareerConnect',
-        careerPreferences: {
-          interestedCompanies: ['Google', 'Microsoft'],
-          interestedRoles: ['Software Developer', 'Web Developer'],
-          interestedSkills: ['JavaScript', 'React', 'Node.js'],
-          careerGoals: 'To become a full-stack developer'
-        }
-      });
-      
-      await testUser.save();
-      console.log('Test user created');
-    }
-    
-    // Create admin user if it doesn't exist
-    if (!adminUserExists) {
-      const adminUser = new User({
-        name: 'Admin User',
-        email: 'admin@example.com',
-        password: 'admin123',
-        contactNumber: '9876543210',
-        sapId: 'ADMIN001',
-        rollNo: 'A001',
-        gender: 'Other',
-        dob: new Date('1990-01-01'),
-        tenthPercentage: 90,
-        tenthSchool: 'Admin School',
-        twelfthPercentage: 85,
-        twelfthCollege: 'Admin College',
-        graduationCollege: 'Admin University',
-        graduationCGPA: 9.0,
-        stream: 'Computer Engineering',
-        sixthSemesterCGPA: 8.5,
-        isAdmin: true
-      });
-      
-      await adminUser.save();
-      console.log('Admin user created');
-    }
-  } catch (error) {
-    console.error('Error creating test users:', error);
-  }
-};
-
-// Connect to the database and start server - removed security configurations
+// Connect to the database and start server
 (async () => {
+  console.log('[DB] Starting database connection process...');
   try {
-    // Use the exact case that already exists in MongoDB to avoid case sensitivity error
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/CareerConnect', {
-      // Add these options to handle case sensitivity properly
-      authSource: 'admin',
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+    const mongoOptions = {
+      serverSelectionTimeoutMS: 5000, // Revert to slightly longer timeout
+      socketTimeoutMS: 10000,
+      connectTimeoutMS: 5000,
+      heartbeatFrequencyMS: 5000, // Less frequent heartbeat
+      // family: 4 // Temporarily removed
+    };
+
+    console.log(`[DB] Attempting connection to mongodb://localhost:27017/CareerConnect with options: ${JSON.stringify(mongoOptions)}`);
+    
+    await mongoose.connect('mongodb://localhost:27017/CareerConnect', mongoOptions);
+    
+    console.log('[DB] Mongoose connect call completed.');
+
+    // Check connection state explicitly
+    if (mongoose.connection.readyState === 1) {
+      console.log('[DB] MongoDB connected successfully!');
+    } else {
+      console.error('[DB] Mongoose connected, but readyState is not 1. State:', mongoose.connection.readyState);
+      throw new Error('MongoDB connection failed post-connect call.');
+    }
+
+    // Add listeners for connection events AFTER initial attempt
+    mongoose.connection.on('error', (err) => {
+      console.error('[DB Event] MongoDB connection error:', err);
     });
-    console.log(`MongoDB connected successfully`);
-    
-    // Create test users
-    await createTestUsers();
-    
-    // Start server after database connection
-    const PORT = 4000;
+    mongoose.connection.on('disconnected', () => {
+      console.log('[DB Event] MongoDB disconnected.');
+    });
+    mongoose.connection.on('reconnected', () => {
+      console.log('[DB Event] MongoDB reconnected.');
+    });
+
+    console.log('[Server] Proceeding to start Express server...');
+    const PORT = process.env.SERVER_PORT || 4000;
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      console.log(`[Server] Express server listening on port ${PORT}`);
     });
+
   } catch (error) {
-    console.error('Server initialization error:', error);
+    console.error('\n[Error] Server initialization failed:', error);
+    console.error('\nTroubleshooting steps:');
+    console.error('1. MongoDB Service Status:');
+    console.error('   - Ensure MongoDB service is RUNNING (check services.msc or MongoDB Compass).');
+    console.error('   - MongoDB Compass shows connection: Yes');
+    console.error('2. Network/Firewall:');
+    console.error('   - Verify no firewall is blocking Node.js from accessing port 27017.');
+    console.error('   - Connection URL used: mongodb://localhost:27017/CareerConnect');
+    console.error('3. Mongoose/Driver Issue:');
+    console.error('   - Check compatibility between Mongoose, Node.js, and MongoDB versions.');
     process.exit(1);
   }
 })();

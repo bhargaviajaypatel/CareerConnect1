@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect } from "react";
 import Register from "./components/Registeration/Register.js";
 import Login from "./components/Login/Login.js";
-import Home from "./components/Home/Home.js";
+import NewHome from "./components/Home/NewHome.js";
 import ForgetPassword from "./components/ForgotPassword/ForgetPassword.js";
 import AddCompanies from "./components/Admin/Company-CRUD/AddCompanies.js";
 import AddCompany from "./components/Admin/Company-CRUD/AddCompany.js";
@@ -22,54 +22,27 @@ import InterviewExperience from "./components/Home/InterviewExperiencePage/Inter
 import AddExperience from "./components/Home/InterviewExperiencePage/AddExperience.js";
 import ProfilePage from "./components/Profile/ProfilePage.js";
 import EditProfile from "./components/Profile/EditProfilePage.js";
+import AnnouncementManager from "./components/Admin/AdminHomeComponents/AnnouncementManager.js";
 import "./responsive.css";
 
-// Create a context for dark mode
-export const DarkModeContext = createContext();
+
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    // Check for saved preference
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
-    
-    // Apply dark mode to body if enabled
-    if (savedDarkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, []);
-
-  // Toggle dark mode function
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode);
-    
-    if (newDarkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  };
 
   return (
-    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/home" element={<NewHome />} />
           <Route path="/companylisting" element={<CompanyListing />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/add-companies" element={<AddCompanies />} />
           <Route path="/addcompany" element={<AddCompany />} />
           <Route path="/companies" element={<Companycrud />} />
+          <Route path="/announcements" element={<AnnouncementManager />} />
           <Route path="/forgotpassword" element={<ForgetPassword />} />
           <Route path="/resetPassword/:token" element={<ResetPassword />} />
           <Route path="/updatecompany/:id" element={<UpdateCompany />} />
@@ -88,7 +61,6 @@ function App() {
           <Route path="/interviewreports" element={<InterviewReports />} />
         </Routes>
       </Router>
-    </DarkModeContext.Provider>
   );
 }
 

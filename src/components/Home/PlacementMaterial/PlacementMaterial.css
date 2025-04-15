@@ -5,6 +5,10 @@
   padding-top: 2rem;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .placement-material-container {
@@ -16,6 +20,11 @@
   background-color: #fff;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   margin-top: 90px;
+  position: relative;
+  z-index: 2;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
 }
 
 .placement-material-heading {
@@ -98,15 +107,32 @@
 .tab-content {
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
   padding: 30px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 3;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
 }
 
 /* Improved Search Bar */
-.search-bar {
-  margin: 0 0 25px;
+.search-container {
   position: relative;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #95a5a6;
+  font-size: 1.1rem;
 }
 
 .search-input {
@@ -115,34 +141,15 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
 }
 
 .search-input:focus {
   border-color: #3498db;
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
   outline: none;
-  background-color: #fff;
-}
-
-.search-bar:before {
-  content: '\f002';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa;
-  z-index: 1;
-  transition: color 0.3s ease;
-}
-
-.search-input:focus + .search-bar:before,
-.search-bar:hover:before {
-  color: #3498db;
 }
 
 /* Enhanced Company and Roadmap Lists */
@@ -411,8 +418,8 @@
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
+  border: none;
 }
 
 .resource-link {
@@ -431,8 +438,8 @@
 
 .mark-completed-btn {
   background-color: #f5f5f5;
-  border: 1px solid #ddd;
   color: #555;
+  border: 1px solid #ddd;
 }
 
 .mark-completed-btn.completed {
@@ -601,187 +608,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Adding dark mode toggle button */
-.dark-mode-toggle {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #1a237e, #3949ab);
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dark-mode-toggle:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-}
-
-/* Dark Mode Styles */
-body.dark-mode .placement-material-page {
-  background-color: #121212;
-  color: #f5f5f5;
-}
-
-body.dark-mode .placement-material-container {
-  background-color: #1e1e1e;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-mode .placement-material-heading {
-  color: #64b5f6;
-}
-
-body.dark-mode .placement-material-intro {
-  color: #b0bec5;
-}
-
-body.dark-mode .tab-button {
-  color: #b0bec5;
-}
-
-body.dark-mode .tab-button:hover {
-  color: #64b5f6;
-}
-
-body.dark-mode .tab-button.active {
-  color: #64b5f6;
-}
-
-body.dark-mode .tab-button.active:after {
-  background-color: #64b5f6;
-}
-
-body.dark-mode .tab-content {
-  background-color: #1e1e1e;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
-}
-
-body.dark-mode .search-input {
-  background-color: #333;
-  border-color: #444;
-  color: #f5f5f5;
-}
-
-body.dark-mode .search-input:focus {
-  border-color: #64b5f6;
-  box-shadow: 0 0 0 2px rgba(100, 181, 246, 0.2);
-}
-
-body.dark-mode .company-selection h2,
-body.dark-mode .roadmap-selection h2 {
-  color: #64b5f6;
-}
-
-body.dark-mode .company-list,
-body.dark-mode .roadmap-list {
-  background-color: #2d2d2d;
-}
-
-body.dark-mode .company-item,
-body.dark-mode .roadmap-item {
-  background-color: #333;
-  border-color: #444;
-}
-
-body.dark-mode .company-item:hover,
-body.dark-mode .roadmap-item:hover {
-  background-color: #3d3d3d;
-  border-color: #555;
-}
-
-body.dark-mode .company-item.selected,
-body.dark-mode .roadmap-item.selected {
-  background-color: #2c3e50;
-  border-color: #64b5f6;
-}
-
-body.dark-mode .company-name,
-body.dark-mode .roadmap-title {
-  color: #f5f5f5;
-}
-
-body.dark-mode .company-profile,
-body.dark-mode .roadmap-description {
-  color: #b0bec5;
-}
-
-body.dark-mode .roadmap-content h2 {
-  color: #64b5f6;
-}
-
-body.dark-mode .roadmap-details {
-  background-color: #1e1e1e;
-}
-
-body.dark-mode .roadmap-details h3 {
-  color: #64b5f6;
-}
-
-body.dark-mode .skill-section {
-  background-color: #2d2d2d;
-  border-left: 4px solid #64b5f6;
-}
-
-body.dark-mode .skill-section h4 {
-  color: #f5f5f5;
-}
-
-body.dark-mode .progress-bar {
-  background-color: #444;
-}
-
-body.dark-mode .progress {
-  background-color: #64b5f6;
-}
-
-body.dark-mode .progress-text {
-  color: #b0bec5;
-}
-
-body.dark-mode .resource-item {
-  background-color: #333;
-  border-color: #444;
-}
-
-body.dark-mode .resource-item:hover {
-  border-color: #64b5f6;
-}
-
-body.dark-mode .resource-details h5 {
-  color: #f5f5f5;
-}
-
-body.dark-mode .resource-details p {
-  color: #b0bec5;
-}
-
-body.dark-mode .resource-link {
-  background-color: #64b5f6;
-  color: #fff;
-}
-
-body.dark-mode .resource-link:hover {
-  background-color: #1976d2;
-}
-
-body.dark-mode .mark-completed-btn {
-  background-color: #333;
-  border-color: #444;
-  color: #b0bec5;
-}
-
-body.dark-mode .mark-completed-btn.completed {
+.mark-completed-btn.completed {
   background-color: #2e7d32;
   color: #fff;
 }
@@ -845,4 +672,154 @@ body.dark-mode .save-roadmap-btn.saved {
 
 body.dark-mode .save-custom-roadmap-btn {
   background-color: #1976d2;
+}
+
+/* Add styling for companies grid */
+.companies-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 24px !important;
+  margin-top: 30px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  overflow: visible !important;
+  min-height: 400px !important;
+}
+
+.company-card {
+  display: block !important;
+  visibility: visible !important;
+  background-color: #e74c3c !important;
+  border: 3px solid #000000 !important;
+  border-radius: 10px !important;
+  padding: 24px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+  position: relative !important;
+  z-index: 20 !important;
+  overflow: visible !important;
+  margin-bottom: 20px !important;
+}
+
+.company-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border-color: #f1c40f; /* Yellow border on hover */
+}
+
+.company-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff; /* White text */
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Text shadow for legibility */
+}
+
+.company-card .job-profile {
+  color: #f1c40f; /* Yellow text */
+  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.company-card p {
+  color: #ffffff; /* White text */
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.view-roadmap-btn {
+  background: #2ecc71; /* Bright green button */
+  color: #000000; /* Black text for contrast */
+  border: 2px solid #000000;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.view-roadmap-btn:hover {
+  background: #f1c40f; /* Yellow on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode support for company cards */
+body.dark-mode .company-card {
+  background-color: #f39c12; /* Orange for dark mode */
+  border-color: #ffffff; /* White border in dark mode */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .company-card h3 {
+  color: #000000; /* Black text in dark mode for contrast */
+}
+
+body.dark-mode .company-card .job-profile {
+  color: #ffffff; /* White text in dark mode */
+  font-weight: 700;
+}
+
+body.dark-mode .company-card p {
+  color: #000000; /* Black text in dark mode */
+  font-weight: 500;
+}
+
+/* No companies message styling */
+.no-companies-message {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  color: #7f8c8d;
+  border: 1px dashed #e0e0e0;
+  margin-top: 20px;
+}
+
+body.dark-mode .no-companies-message {
+  background-color: #2c3e50;
+  color: #bdc3c7;
+  border-color: #34495e;
+}
+
+/* Roadmap actions styling */
+.roadmap-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-saved-roadmaps-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+
+.view-saved-roadmaps-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.view-saved-roadmaps-btn i {
+  font-size: 1rem;
+}
+
+.roadmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }

@@ -79,6 +79,9 @@ function AdminHome() {
                   <Link className="nav-link mx-lg-2" to="/companies">Manage Companies</Link>
                 </li>
                 <li className="nav-item">
+                  <Link className="nav-link mx-lg-2" to="/announcements">Manage Announcements</Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link mx-lg-2" to="/scheduledinterviewdata">Interview Reports</Link>
                 </li>
                 <li className="nav-item">

@@ -36,7 +36,15 @@ body {
   line-height: 1.6;
   color: var(--text-color);
   overflow-x: hidden;
+  overflow-y: auto;
   background-color: #f5f7fa;
+  min-height: 100vh;
+  position: relative;
+}
+
+html {
+  height: 100%;
+  overflow-y: auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -55,6 +63,7 @@ button, .btn, input, select {
   padding-left: 15px;
   margin-right: auto;
   margin-left: auto;
+  overflow-y: auto;
 }
 
 /* Responsive images */
@@ -66,8 +75,9 @@ img {
 /* Responsive text */
 h1 {
   font-size: 2.5rem;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 30px;
   transition: font-size var(--transition-speed) ease;
+  margin-top: 80px;
 }
 
 h2 {
