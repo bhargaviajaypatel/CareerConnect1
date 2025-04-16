@@ -83,8 +83,8 @@ router.post("/register", upload.single('resume'), async (req, res) => {
   }
 });
 
-// Auth endpoint for login using MongoDB
-router.post("/", async (req, res) => {
+// Auth endpoint for login using MongoDB - handle both root path and /login path
+router.post(["/", "/login"], async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log("Auth endpoint called with email:", email, "and password:", password);

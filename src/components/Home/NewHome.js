@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { getCompanies } from "../../redux/companySlice.jsx";
-import axios from "../../api/axiosConfig.js";
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { getCompanies } from '../../redux/companySlice';
+import axiosInstance from '../../api/axiosConfig';
+import { useNavigate } from 'react-router-dom';
 
 // Import CSS
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -33,235 +33,51 @@ const COMPANY_LOGOS = {
   "Oracle": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Oracle_logo.svg/1200px-Oracle_logo.svg.png"
 };
 
-// Mock data for development when API is not available
-const MOCK_USER = {
-  id: 1,
-  name: "John Doe",
-  email: "john.doe@example.com",
-  role: "student"
-};
-
-const MOCK_PLACEMENT = {
-  isPlaced: true,
-  company: "Google",
-  position: "Software Engineer",
-  package: "45 LPA",
-  joiningDate: "2025-07-15"
-};
-
-const MOCK_STATISTICS = {
-  totalPlacements: 587,
-  averageCTC: 41.65,
-  successRate: 94,
-  topCTC: 120
-};
-
-const MOCK_COMPANIES = [
-  { id: 1, name: "Google", logo: COMPANY_LOGOS["Google"] },
-  { id: 2, name: "Microsoft", logo: COMPANY_LOGOS["Microsoft"] },
-  { id: 3, name: "Amazon", logo: COMPANY_LOGOS["Amazon"] },
-  { id: 4, name: "Apple", logo: COMPANY_LOGOS["Apple"] },
-  { id: 5, name: "Meta", logo: COMPANY_LOGOS["Meta"] },
-  { id: 6, name: "Netflix", logo: COMPANY_LOGOS["Netflix"] },
-  { id: 7, name: "IBM", logo: COMPANY_LOGOS["IBM"] },
-  { id: 8, name: "Oracle", logo: COMPANY_LOGOS["Oracle"] }
-];
-
-function NewHome() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  // State management
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [placementStatus, setPlacementStatus] = useState(null);
+const NewHome = () => {
   const [featuredCompanies, setFeaturedCompanies] = useState([]);
-  const [statistics, setStatistics] = useState({
-    totalPlacements: 0,
-    averageCTC: 0,
-    successRate: 0,
-    topCTC: 0
-  });
-  const [collegeAnnouncements, setCollegeAnnouncements] = useState([
-    {
-      id: 1,
-      title: "Campus Recruitment Drive",
-      date: "April 15, 2025",
-      content: "Microsoft will be conducting on-campus interviews for final year students."
-    },
-    {
-      id: 2,
-      title: "Pre-Placement Workshop",
-      date: "April 10, 2025",
-      content: "Resume building and interview preparation workshop at the Main Auditorium."
-    },
-    {
-      id: 3,
-      title: "Technical Seminar",
-      date: "April 12, 2025",
-      content: "Industry experts from Google will conduct a technical seminar on Cloud Computing."
-    }
-  ]);
+  const [statistics, setStatistics] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // Check authentication status and fetch user data
-  const checkAuth = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const userEmail = localStorage.getItem("userEmail");
-      
-      // For development purposes, use hardcoded data for Aarav Sharma
-      // This simulates the user being logged in with correct data
-      setCurrentUser({
-        id: 1,
-        name: "Aarav Sharma",
-        email: "student@careerconnect.com",
-        role: "student"
-      });
-      
-      // Set placement status to match the profile page (not placed)
-      setPlacementStatus({
-        isPlaced: false,
-        company: "Not specified",
-        position: "Not specified",
-        package: "Not specified",
-        joiningDate: null
-      });
-      
-      setAuthChecked(true);
-      setLoading(false);
-      
-      // Skip actual API calls since they're failing
-      return;
-      
-      // The code below is kept but not executed for now
-      // Only use token-based authentication, remove mock data fallback for logged-in users
-      if (!token) {
-        // If no token, user is not logged in - don't use mock data
-        setAuthChecked(true);
-        setLoading(false);
-        return;
-      }
-
-      // Fetch current user data from the database
-      try {
-        const response = await axios.get("/api/auth/current-user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.data && response.data.success) {
-          // Set the actual user data from the database
-          setCurrentUser(response.data.user);
-          
-          // If user is authenticated, fetch their placement status
-          try {
-            const placementResponse = await axios.get(`/api/placements/user/${response.data.user.id}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            
-            if (placementResponse.data && placementResponse.data.success) {
-              setPlacementStatus(placementResponse.data.placement);
-            }
-          } catch (placementError) {
-            console.error("Error fetching placement status:", placementError);
-            // Don't use mock placement data as fallback for real users
-          }
-        } else {
-          // If API call was successful but user data wasn't valid,
-          // the user is not properly authenticated
-          localStorage.removeItem("token");
-          navigate("/login");
-        }
-      } catch (userError) {
-        console.error("Error fetching user data:", userError);
-        // If there was an error fetching user data, redirect to login
-        localStorage.removeItem("token");
-        navigate("/login");
-      }
-    } catch (error) {
-      console.error("Auth check error:", error);
-      localStorage.removeItem("token");
-      navigate("/login");
-    } finally {
-      setAuthChecked(true);
-      setLoading(false);
-    }
-  }, [navigate]);
-
-  // Fetch company data
-  const fetchCompanies = useCallback(async () => {
-    try {
-      // Try to fetch from API
-      console.log("Attempting to fetch companies from API...");
-      const response = await axios.get("/api/companies/featured");
-      
-      if (response.data && response.data.success && Array.isArray(response.data.companies)) {
-        const companies = response.data.companies.map(company => ({
-          ...company,
-          logo: COMPANY_LOGOS[company.name] || `https://via.placeholder.com/150x80/eaeefd/3a57e8?text=${company.name}`
-        }));
-        
-        setFeaturedCompanies(companies);
-        dispatch(getCompanies(companies));
-      } else {
-        console.log("API returned unsuccessful response or invalid data format, using mock company data");
-        setFeaturedCompanies(MOCK_COMPANIES);
-        dispatch(getCompanies(MOCK_COMPANIES));
-      }
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      // Always use mock data as fallback
-      console.log("Using mock company data due to API error");
-      setFeaturedCompanies(MOCK_COMPANIES);
-      dispatch(getCompanies(MOCK_COMPANIES));
-    }
-  }, [dispatch]);
-
-  // Fetch real-time statistics
-  const fetchStatistics = useCallback(async () => {
-    try {
-      // Try to fetch from API
-      console.log("Attempting to fetch statistics from API...");
-      const response = await axios.get("/api/statistics/placements");
-      
-      if (response.data && response.data.success) {
-        setStatistics(response.data.statistics);
-      } else {
-        console.log("API returned unsuccessful response, using mock statistics data");
-        setStatistics(MOCK_STATISTICS);
-      }
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-      // Always use mock data as fallback
-      console.log("Using mock statistics data due to API error");
-      setStatistics(MOCK_STATISTICS);
-    }
-  }, []);
-
-  // Initialize component
   useEffect(() => {
-    checkAuth();
-    fetchCompanies();
-    fetchStatistics();
-    
-    // Load Bootstrap JS for navbar functionality
-    const loadBootstrapJS = () => {
-      if (!window.bootstrap) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js';
-        script.integrity = 'sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz';
-        script.crossOrigin = 'anonymous';
-        document.body.appendChild(script);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch user profile
+        const email = localStorage.getItem('userEmail');
+        if (email) {
+          const profileResponse = await axiosInstance.get(`/profile/${email}`);
+          if (profileResponse.data.status) {
+            setUserProfile(profileResponse.data.user);
+          }
+        }
+
+        // Fetch companies
+        const companiesResponse = await axiosInstance.get('/auth/getCompanies');
+        if (companiesResponse.data.status) {
+          const companies = companiesResponse.data.companies || [];
+          setFeaturedCompanies(companies);
+          dispatch(getCompanies(companies));
+        }
+
+        // Fetch statistics
+        const statsResponse = await axiosInstance.get('/api/statistics/placements');
+        if (statsResponse.data.status) {
+          setStatistics(statsResponse.data.data);
+        }
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    
-    loadBootstrapJS();
-  }, [checkAuth, fetchCompanies, fetchStatistics]);
+
+    fetchData();
+  }, [dispatch]);
 
   // Loading state
   if (loading) {
@@ -269,20 +85,6 @@ function NewHome() {
       <div className="loading-container">
         <div className="loading"></div>
         <h3>Loading Career Connect...</h3>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="error-container">
-        <i className="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-        <h3>Error</h3>
-        <p>{error}</p>
-        <button className="btn btn-primary mt-3" onClick={() => window.location.reload()}>
-          Try Again
-        </button>
       </div>
     );
   }
@@ -303,9 +105,9 @@ function NewHome() {
                   Career Connect
                 </h1>
                 <div className="welcome-message">
-                  {currentUser ? (
+                  {userProfile ? (
                     <>
-                      <h2>Hello, <span className="user-name">{currentUser.name}</span>! <span className="wave-emoji">👋</span></h2>
+                      <h2>Hello, <span className="user-name">{userProfile.name}</span>! <span className="wave-emoji">👋</span></h2>
                       <p className="welcome-tagline">Ready to shape your future career journey at {COLLEGE_INFO.name}?</p>
                     </>
                   ) : (
@@ -313,12 +115,6 @@ function NewHome() {
                       <h2>Welcome to Career Connect</h2>
                       <p className="welcome-tagline">Please log in to access your personalized dashboard</p>
                     </>
-                  )}
-                  
-                  {placementStatus && placementStatus.isPlaced && (
-                    <div className="placement-congrats">
-                      <p><span className="congrats-emoji">🎉</span> Congratulations! You've secured a position at <span className="company-name">{placementStatus.company}</span></p>
-                    </div>
                   )}
                 </div>
                 <p className="hero-description">
@@ -347,22 +143,7 @@ function NewHome() {
             </div>
             
             <div className="row">
-              {collegeAnnouncements.map((announcement) => (
-                <div className="col-lg-4 col-md-6 mb-4" key={announcement.id}>
-                  <div className="announcement-card h-100">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      <h5 className="mb-0">{announcement.title}</h5>
-                      <span className="badge bg-primary">{announcement.date}</span>
-                    </div>
-                    <div className="card-body">
-                      <p className="card-text">{announcement.content}</p>
-                    </div>
-                    <div className="card-footer text-end">
-                      <button className="btn btn-sm btn-outline-primary">Learn More</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* Add announcements here */}
             </div>
           </div>
         </section>
@@ -383,7 +164,7 @@ function NewHome() {
                     <i className="fas fa-user-graduate"></i>
                   </div>
                   <div className="stat-content">
-                    <h3><span className="counter">{statistics.totalPlacements}</span>+</h3>
+                    <h3><span className="counter">{statistics && statistics.totalPlacements}</span>+</h3>
                     <p>Students Placed</p>
                     <div className="stat-progress">
                       <div className="progress-bar" style={{width: '85%'}}></div>
@@ -402,7 +183,7 @@ function NewHome() {
                     <i className="fas fa-rupee-sign"></i>
                   </div>
                   <div className="stat-content">
-                    <h3><span className="counter">{statistics.averageCTC}</span> LPA</h3>
+                    <h3><span className="counter">{statistics && statistics.averageCTC}</span> LPA</h3>
                     <p>Average Package</p>
                     <div className="stat-progress">
                       <div className="progress-bar" style={{width: '75%'}}></div>
@@ -421,7 +202,7 @@ function NewHome() {
                     <i className="fas fa-medal"></i>
                   </div>
                   <div className="stat-content">
-                    <h3><span className="counter">{statistics.successRate}%</span></h3>
+                    <h3><span className="counter">{statistics && statistics.successRate}%</span></h3>
                     <p>Success Rate</p>
                     <div className="stat-progress">
                       <div className="progress-bar" style={{width: '94%'}}></div>

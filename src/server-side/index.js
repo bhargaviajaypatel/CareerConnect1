@@ -29,23 +29,22 @@ app.use(cors({
   origin: 'http://localhost:3000',
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Apply all security middleware using the imported function
+// Apply all security middleware
 applySecurityMiddleware(app);
 
-// Create uploads directory if it doesn't exist
+// Set up uploads directory for file storage
 const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
-
-// Serve files from uploads directory
 console.log(`Serving static files from: ${uploadsDir}`);
 app.use('/uploads', express.static(uploadsDir));
 
-// Create logs directory if it doesn't exist
+// Set up logs directory
 const logsDir = path.join(process.cwd(), 'logs');
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
@@ -69,20 +68,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Server is running' });
 });
 
-// Serve static files from the React app build folder in production
-if (process.env.NODE_ENV === 'production') {
-  const buildPath = path.join(process.cwd(), 'build');
-  app.use(express.static(buildPath));
-
-  // For any route that is not an API route, serve the React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-  });
-} else {
-  console.log('Running in development mode - using proxy for frontend');
-}
-
-// Simple error handler - removed security details
+// Simple error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -102,20 +88,21 @@ app.use((req, res) => {
   console.log('[DB] Starting database connection process...');
   try {
     const mongoOptions = {
-      serverSelectionTimeoutMS: 5000, // Revert to slightly longer timeout
+      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 10000,
       connectTimeoutMS: 5000,
-      heartbeatFrequencyMS: 5000, // Less frequent heartbeat
-      // family: 4 // Temporarily removed
+      heartbeatFrequencyMS: 5000,
+      retryWrites: true,
+      w: 'majority'
     };
 
-    console.log(`[DB] Attempting connection to mongodb://localhost:27017/CareerConnect with options: ${JSON.stringify(mongoOptions)}`);
+    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/CareerConnect';
+    console.log(`[DB] Attempting connection to MongoDB with options: ${JSON.stringify(mongoOptions)}`);
     
-    await mongoose.connect('mongodb://localhost:27017/CareerConnect', mongoOptions);
+    await mongoose.connect(uri, mongoOptions);
     
     console.log('[DB] Mongoose connect call completed.');
 
-    // Check connection state explicitly
     if (mongoose.connection.readyState === 1) {
       console.log('[DB] MongoDB connected successfully!');
     } else {
@@ -123,7 +110,7 @@ app.use((req, res) => {
       throw new Error('MongoDB connection failed post-connect call.');
     }
 
-    // Add listeners for connection events AFTER initial attempt
+    // Add listeners for connection events
     mongoose.connection.on('error', (err) => {
       console.error('[DB Event] MongoDB connection error:', err);
     });
@@ -134,23 +121,16 @@ app.use((req, res) => {
       console.log('[DB Event] MongoDB reconnected.');
     });
 
-    console.log('[Server] Proceeding to start Express server...');
+    // Start the Express server
     const PORT = process.env.SERVER_PORT || 4000;
     app.listen(PORT, () => {
       console.log(`[Server] Express server listening on port ${PORT}`);
     });
 
   } catch (error) {
-    console.error('\n[Error] Server initialization failed:', error);
-    console.error('\nTroubleshooting steps:');
-    console.error('1. MongoDB Service Status:');
-    console.error('   - Ensure MongoDB service is RUNNING (check services.msc or MongoDB Compass).');
-    console.error('   - MongoDB Compass shows connection: Yes');
-    console.error('2. Network/Firewall:');
-    console.error('   - Verify no firewall is blocking Node.js from accessing port 27017.');
-    console.error('   - Connection URL used: mongodb://localhost:27017/CareerConnect');
-    console.error('3. Mongoose/Driver Issue:');
-    console.error('   - Check compatibility between Mongoose, Node.js, and MongoDB versions.');
+    console.error('\n[Error] Server initialization:', error);
     process.exit(1);
   }
 })();
+
+export default app;

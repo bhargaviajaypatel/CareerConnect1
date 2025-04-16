@@ -81,7 +81,7 @@ function Login() {
     console.log("Attempting login with:", email);
     
     // API call using our configured axios instance
-    axios.post("/auth", userData)
+    axios.post("/auth/login", userData)
       .then((response) => {
         console.log("Login response:", response.data);
         
@@ -213,6 +213,7 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
             className="form-control"
+            autoComplete="current-password"
             required
             disabled={isLoading || redirectCountdown !== null}
           />

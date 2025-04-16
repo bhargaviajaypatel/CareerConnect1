@@ -209,6 +209,7 @@ function Registration() {
             id="password"
             className="form-control"
             placeholder="Password"
+            autoComplete="new-password"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
@@ -219,6 +220,7 @@ function Registration() {
             id="repass"
             className="form-control"
             placeholder="Re-enter Password"
+            autoComplete="new-password"
             onChange={(e) => setRpass(e.target.value)}
           />
         </div>

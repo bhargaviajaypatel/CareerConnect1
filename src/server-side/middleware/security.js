@@ -11,30 +11,22 @@ const __dirname = dirname(__filename);
 // Read package.json
 const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url)));
 
-// Rate limiting configuration - more lenient in development mode
+// Rate limiting configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Increased limit for development
+  max: 1000, // Limit each IP to 1000 requests per windowMs
   message: 'Too many requests from this IP, please try again later',
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
-
-// Auth-specific rate limiter (stricter for login/register) - DISABLED IN DEV MODE
-const authLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: process.env.NODE_ENV === 'production' ? 10 : 10000, // Setting extremely high limit for dev
-  message: 'Too many login attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req, res) => {
-    // Skip rate limiting in development mode
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`[Rate limiter] Skipping rate limit for ${req.method} ${req.originalUrl}`);
-      return true; // Skip rate limiting completely in development
-    }
-    return false;
-  }
+});
+
+// Auth-specific rate limiter
+const authLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 100, // Limit each IP to 100 login attempts per windowMs
+  message: 'Too many login attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
 // CSP configuration from package.json
@@ -54,22 +46,15 @@ const applySecurityMiddleware = (app) => {
   // Basic security headers from Helmet
   app.use(helmet());
 
-  // Only apply rate limiting in production
-  if (process.env.NODE_ENV === 'production') {
-    console.log("[Security] Applying rate limits in production mode");
-    
-    // Apply rate limiting to specific routes
-    app.use("/auth/getCompanies", limiter);
-    app.use("/roadmap", limiter);
-    app.use("/statistics", limiter);
-    app.use("/profile", limiter);
-    
-    // Apply stricter rate limiting only to authentication routes
-    app.use("/auth", authLimiter);
-    app.use("/auth/register", authLimiter);
-  } else {
-    console.log("[Security] Rate limiting DISABLED in development mode");
-  }
+  // Apply rate limiting to specific routes
+  app.use("/auth/getCompanies", limiter);
+  app.use("/roadmap", limiter);
+  app.use("/statistics", limiter);
+  app.use("/profile", limiter);
+  
+  // Apply stricter rate limiting only to authentication routes
+  app.use("/auth", authLimiter);
+  app.use("/auth/register", authLimiter);
 
   // Custom security headers middleware
   app.use((req, res, next) => {

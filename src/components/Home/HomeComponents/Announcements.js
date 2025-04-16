@@ -6,44 +6,16 @@ const Announcements = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data as fallback
-  const MOCK_ANNOUNCEMENTS = [
-    {
-      _id: 'mock1',
-      title: 'Microsoft Campus Interviews',
-      description: 'Microsoft will be conducting on-campus interviews for final year students.',
-      link: '#'
-    },
-    {
-      _id: 'mock2',
-      title: 'Resume Building Workshop',
-      description: 'Resume building and interview preparation workshop at the Main Auditorium.',
-      link: '#'
-    },
-    {
-      _id: 'mock3',
-      title: 'Technical Seminar on Cloud Computing',
-      description: 'Industry experts from Google will conduct a technical seminar on Cloud Computing.',
-      link: '#'
-    }
-  ];
-
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/announcements');
-        
-        if (response.data && response.data.success && response.data.announcements.length > 0) {
+        const response = await axios.get('/api/admin/announcements');
+        if (response.data.status) {
           setAnnouncements(response.data.announcements);
-        } else {
-          console.log("API returned success:false or empty data. Using mock data.");
-          setAnnouncements(MOCK_ANNOUNCEMENTS);
         }
       } catch (error) {
-        console.log("Error fetching announcements:", error);
-        // Fallback to mock data on error
-        setAnnouncements(MOCK_ANNOUNCEMENTS);
+        console.error('Error fetching announcements:', error);
       } finally {
         setLoading(false);
       }
@@ -51,6 +23,23 @@ const Announcements = () => {
 
     fetchAnnouncements();
   }, []);
+
+  if (loading) {
+    return (
+      <section className="announcements-section">
+        <div className="container">
+          <div className="announcements-container">
+            <div className="loading-container">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <p>Loading announcements...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="announcements-section">
@@ -60,27 +49,23 @@ const Announcements = () => {
             <h2>Campus Announcements</h2>
             <p>Stay updated with the latest placement activities</p>
           </div>
-          
           <div className="announcements-cards">
-            {loading ? (
-              <div className="loading-container">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-                <p>Loading announcements...</p>
-              </div>
-            ) : (
-              announcements.map((announcement, index) => (
-                <div className="announcement-card" key={announcement._id || index}>
+            {announcements.length > 0 ? (
+              announcements.map((announcement) => (
+                <div className="announcement-card" key={announcement._id}>
                   <div className="announcement-content">
                     <h3>{announcement.title}</h3>
-                    <p>{announcement.description}</p>
+                    <p>{announcement.content}</p>
                   </div>
                   <div className="announcement-action">
-                    <a href={announcement.link || "#"} className="learn-more-btn">Learn More</a>
+                    <a href="#" className="learn-more-btn">Learn More</a>
                   </div>
                 </div>
               ))
+            ) : (
+              <div className="no-announcements">
+                <p>No announcements available at the moment.</p>
+              </div>
             )}
           </div>
         </div>

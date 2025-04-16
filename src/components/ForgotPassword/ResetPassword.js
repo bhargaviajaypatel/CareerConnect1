@@ -37,6 +37,7 @@ function ResetPassword() {
               id="password"
               className="form-control"
               placeholder="Password"
+              autoComplete="new-password"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>

@@ -1,0 +1,498 @@
+[
+  {
+    "_id": "67f3d017365fa5ad200a9131",
+    "companyname": "Tata Consultancy Services",
+    "jobprofile": "Mobile App Developer",
+    "jobdescription": "Tata Consultancy Services is looking for talented individuals to join our team as Software Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.tataconsultancyservices.com",
+    "ctc": 18,
+    "doi": "Thu Nov 30 2023 22:28:38 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-DATA SCIENCE",
+      "BTECH-CYBERSECURITY",
+      "BTECH-CS",
+      "BTECH-IT"
+    ],
+    "tenthPercentage": 63,
+    "twelfthPercentage": 62,
+    "graduationCGPA": 7,
+    "sixthSemesterCGPA": 6.7,
+    "requiredSkills": [
+      "Hadoop",
+      "SASS",
+      "Azure",
+      "Angular",
+      "React"
+    ],
+    "rolesAndResponsibilities": [
+      "Optimize database queries",
+      "Deploy applications to cloud environments",
+      "Stay updated with industry trends"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9132",
+    "companyname": "Infosys",
+    "jobprofile": "Business Analyst",
+    "jobdescription": "Infosys is looking for talented individuals to join our team as Mobile App Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.infosys.com",
+    "ctc": 21,
+    "doi": "Fri Nov 17 2023 19:39:27 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-CYBERSECURITY"
+    ],
+    "tenthPercentage": 73,
+    "twelfthPercentage": 60,
+    "graduationCGPA": 7.8,
+    "sixthSemesterCGPA": 7.1,
+    "requiredSkills": [
+      "Machine Learning",
+      "Tailwind CSS",
+      "C++",
+      "Django",
+      "AWS",
+      "Flask",
+      "Git",
+      "JavaScript"
+    ],
+    "rolesAndResponsibilities": [
+      "Write automated tests",
+      "Debug and fix software issues",
+      "Document code and architecture"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9133",
+    "companyname": "Wipro",
+    "jobprofile": "Database Administrator",
+    "jobdescription": "Wipro is looking for talented individuals to join our team as Web Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.wipro.com",
+    "ctc": 16,
+    "doi": "Sat Dec 09 2023 11:00:37 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "MCA",
+      "BTECH-IT",
+      "BTECH-CS"
+    ],
+    "tenthPercentage": 60,
+    "twelfthPercentage": 62,
+    "graduationCGPA": 6.6,
+    "sixthSemesterCGPA": 7,
+    "requiredSkills": [
+      "Google Cloud",
+      "Kubernetes",
+      "SQL",
+      "React",
+      "Spring Boot",
+      "NLP",
+      "PowerShell"
+    ],
+    "rolesAndResponsibilities": [
+      "Optimize database queries",
+      "Document code and architecture",
+      "Build responsive user interfaces",
+      "Participate in code reviews"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9134",
+    "companyname": "HCL Technologies",
+    "jobprofile": "Data Scientist",
+    "jobdescription": "HCL Technologies is looking for talented individuals to join our team as Machine Learning Engineer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.hcltechnologies.com",
+    "ctc": 9,
+    "doi": "Fri Dec 29 2023 06:29:49 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "MCA"
+    ],
+    "tenthPercentage": 75,
+    "twelfthPercentage": 64,
+    "graduationCGPA": 6.8,
+    "sixthSemesterCGPA": 7.1,
+    "requiredSkills": [
+      "Bash",
+      "TensorFlow",
+      "AWS",
+      "Big Data"
+    ],
+    "rolesAndResponsibilities": [
+      "Develop scalable web applications",
+      "Deploy applications to cloud environments",
+      "Collaborate with cross-functional teams",
+      "Build responsive user interfaces"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9135",
+    "companyname": "Tech Mahindra",
+    "jobprofile": "DevOps Engineer",
+    "jobdescription": "Tech Mahindra is looking for talented individuals to join our team as System Administrator. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.techmahindra.com",
+    "ctc": 8,
+    "doi": "Tue Nov 14 2023 08:56:37 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "MCA",
+      "BTECH-IT",
+      "BTECH-CS",
+      "BTECH-CYBERSECURITY",
+      "BTECH-DATA SCIENCE"
+    ],
+    "tenthPercentage": 80,
+    "twelfthPercentage": 76,
+    "graduationCGPA": 8.3,
+    "sixthSemesterCGPA": 8.3,
+    "requiredSkills": [
+      "PowerShell",
+      "React",
+      "Kubernetes",
+      "TensorFlow",
+      "Data Analysis"
+    ],
+    "rolesAndResponsibilities": [
+      "Document code and architecture",
+      "Collaborate with cross-functional teams",
+      "Stay updated with industry trends",
+      "Write automated tests",
+      "Implement security best practices",
+      "Deploy applications to cloud environments"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9136",
+    "companyname": "Cognizant",
+    "jobprofile": "Project Manager",
+    "jobdescription": "Cognizant is looking for talented individuals to join our team as Business Analyst. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.cognizant.com",
+    "ctc": 18,
+    "doi": "Thu Sep 07 2023 19:00:51 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "MCA",
+      "BTECH-CYBERSECURITY",
+      "BTECH-IT",
+      "BTECH-DATA SCIENCE"
+    ],
+    "tenthPercentage": 69,
+    "twelfthPercentage": 69,
+    "graduationCGPA": 8.3,
+    "sixthSemesterCGPA": 7.8,
+    "requiredSkills": [
+      "C#",
+      "CSS",
+      "Google Cloud",
+      "Azure"
+    ],
+    "rolesAndResponsibilities": [
+      "Document code and architecture",
+      "Deploy applications to cloud environments",
+      "Analyze and improve application performance",
+      "Create and maintain APIs",
+      "Implement security best practices",
+      "Collaborate with cross-functional teams"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9137",
+    "companyname": "IBM India",
+    "jobprofile": "Cloud Architect",
+    "jobdescription": "IBM India is looking for talented individuals to join our team as Full Stack Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.ibmindia.com",
+    "ctc": 5,
+    "doi": "Wed Nov 01 2023 13:15:07 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "MCA",
+      "BTECH-IT"
+    ],
+    "tenthPercentage": 64,
+    "twelfthPercentage": 68,
+    "graduationCGPA": 7.1,
+    "sixthSemesterCGPA": 7.3,
+    "requiredSkills": [
+      "Redux",
+      "Java",
+      "MongoDB",
+      "Bootstrap",
+      "Tailwind CSS"
+    ],
+    "rolesAndResponsibilities": [
+      "Mentor junior developers",
+      "Develop scalable web applications",
+      "Build responsive user interfaces",
+      "Create and maintain APIs",
+      "Document code and architecture",
+      "Deploy applications to cloud environments"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9138",
+    "companyname": "Accenture India",
+    "jobprofile": "Cloud Architect",
+    "jobdescription": "Accenture India is looking for talented individuals to join our team as Software Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.accentureindia.com",
+    "ctc": 14,
+    "doi": "Fri Dec 08 2023 05:26:41 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-DATA SCIENCE"
+    ],
+    "tenthPercentage": 76,
+    "twelfthPercentage": 60,
+    "graduationCGPA": 7.9,
+    "sixthSemesterCGPA": 8.2,
+    "requiredSkills": [
+      "SQL",
+      "MobX",
+      "JavaScript",
+      "CSS",
+      "Vue.js",
+      "Deep Learning",
+      "Spring Boot"
+    ],
+    "rolesAndResponsibilities": [
+      "Develop scalable web applications",
+      "Build responsive user interfaces",
+      "Mentor junior developers"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a9139",
+    "companyname": "Capgemini India",
+    "jobprofile": "Full Stack Developer",
+    "jobdescription": "Capgemini India is looking for talented individuals to join our team as Frontend Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.capgeminiindia.com",
+    "ctc": 27,
+    "doi": "Sun Dec 03 2023 08:27:24 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-CYBERSECURITY"
+    ],
+    "tenthPercentage": 79,
+    "twelfthPercentage": 67,
+    "graduationCGPA": 8.1,
+    "sixthSemesterCGPA": 6.9,
+    "requiredSkills": [
+      "React",
+      "Django",
+      "JavaScript",
+      "C#",
+      "Python",
+      "Kubernetes"
+    ],
+    "rolesAndResponsibilities": [
+      "Write automated tests",
+      "Implement security best practices",
+      "Debug and fix software issues",
+      "Stay updated with industry trends",
+      "Deploy applications to cloud environments"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a913a",
+    "companyname": "Reliance Digital",
+    "jobprofile": "Full Stack Developer",
+    "jobdescription": "Reliance Digital is looking for talented individuals to join our team as QA Engineer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.reliancedigital.com",
+    "ctc": 16,
+    "doi": "Fri Nov 17 2023 13:48:21 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-IT",
+      "BTECH-CYBERSECURITY",
+      "BTECH-CS",
+      "BTECH-DATA SCIENCE"
+    ],
+    "tenthPercentage": 80,
+    "twelfthPercentage": 64,
+    "graduationCGPA": 8,
+    "sixthSemesterCGPA": 7.6,
+    "requiredSkills": [
+      "Deep Learning",
+      "MongoDB",
+      "Vue.js",
+      "PostgreSQL",
+      "Express.js",
+      "Data Analysis",
+      "C++",
+      "TypeScript"
+    ],
+    "rolesAndResponsibilities": [
+      "Debug and fix software issues",
+      "Deploy applications to cloud environments",
+      "Develop scalable web applications",
+      "Stay updated with industry trends",
+      "Collaborate with cross-functional teams",
+      "Write automated tests",
+      "Create and maintain APIs"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a913b",
+    "companyname": "Flipkart",
+    "jobprofile": "Security Engineer",
+    "jobdescription": "Flipkart is looking for talented individuals to join our team as Web Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.flipkart.com",
+    "ctc": 8,
+    "doi": "Sat Oct 07 2023 18:04:42 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-CYBERSECURITY"
+    ],
+    "tenthPercentage": 78,
+    "twelfthPercentage": 75,
+    "graduationCGPA": 8,
+    "sixthSemesterCGPA": 6.5,
+    "requiredSkills": [
+      "C#",
+      "Spring Boot",
+      "TensorFlow",
+      "Node.js",
+      "Big Data",
+      "Tailwind CSS"
+    ],
+    "rolesAndResponsibilities": [
+      "Document code and architecture",
+      "Research and implement new technologies",
+      "Develop scalable web applications",
+      "Analyze and improve application performance",
+      "Participate in code reviews",
+      "Mentor junior developers",
+      "Deploy applications to cloud environments"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a913c",
+    "companyname": "Amazon India",
+    "jobprofile": "Mobile App Developer",
+    "jobdescription": "Amazon India is looking for talented individuals to join our team as DevOps Engineer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.amazonindia.com",
+    "ctc": 6,
+    "doi": "Mon Oct 30 2023 20:21:00 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-CS",
+      "BTECH-IT",
+      "BTECH-CYBERSECURITY"
+    ],
+    "tenthPercentage": 73,
+    "twelfthPercentage": 66,
+    "graduationCGPA": 8.4,
+    "sixthSemesterCGPA": 8.1,
+    "requiredSkills": [
+      "AWS",
+      "Google Cloud",
+      "PostgreSQL",
+      "Bash",
+      "GraphQL",
+      "JavaScript"
+    ],
+    "rolesAndResponsibilities": [
+      "Analyze and improve application performance",
+      "Research and implement new technologies",
+      "Create and maintain APIs",
+      "Develop scalable web applications",
+      "Build responsive user interfaces",
+      "Collaborate with cross-functional teams"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a913d",
+    "companyname": "Microsoft India",
+    "jobprofile": "UI/UX Designer",
+    "jobdescription": "Microsoft India is looking for talented individuals to join our team as Software Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.microsoftindia.com",
+    "ctc": 25,
+    "doi": "Thu Nov 02 2023 08:01:54 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-CYBERSECURITY",
+      "MCA",
+      "BTECH-IT"
+    ],
+    "tenthPercentage": 79,
+    "twelfthPercentage": 68,
+    "graduationCGPA": 6.7,
+    "sixthSemesterCGPA": 6.7,
+    "requiredSkills": [
+      "Azure",
+      "Redis",
+      "MongoDB"
+    ],
+    "rolesAndResponsibilities": [
+      "Mentor junior developers",
+      "Create and maintain APIs",
+      "Deploy applications to cloud environments",
+      "Analyze and improve application performance"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a913e",
+    "companyname": "Google India",
+    "jobprofile": "Database Administrator",
+    "jobdescription": "Google India is looking for talented individuals to join our team as Frontend Developer. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.googleindia.com",
+    "ctc": 30,
+    "doi": "Sat Dec 30 2023 17:07:29 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-DATA SCIENCE",
+      "BTECH-CYBERSECURITY"
+    ],
+    "tenthPercentage": 68,
+    "twelfthPercentage": 75,
+    "graduationCGPA": 8.1,
+    "sixthSemesterCGPA": 7.7,
+    "requiredSkills": [
+      "Express.js",
+      "Azure",
+      "SQL",
+      "Tailwind CSS",
+      "Flask"
+    ],
+    "rolesAndResponsibilities": [
+      "Debug and fix software issues",
+      "Deploy applications to cloud environments",
+      "Optimize database queries",
+      "Analyze and improve application performance",
+      "Stay updated with industry trends"
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "67f3d017365fa5ad200a913f",
+    "companyname": "Adobe India",
+    "jobprofile": "Security Engineer",
+    "jobdescription": "Adobe India is looking for talented individuals to join our team as Business Analyst. This is an excellent opportunity to work with cutting-edge technologies and solve challenging problems.",
+    "website": "https://www.adobeindia.com",
+    "ctc": 6,
+    "doi": "Mon Dec 18 2023 19:45:19 GMT+0530 (India Standard Time)",
+    "eligibilityCriteria": [
+      "BTECH-CYBERSECURITY"
+    ],
+    "tenthPercentage": 68,
+    "twelfthPercentage": 71,
+    "graduationCGPA": 6.9,
+    "sixthSemesterCGPA": 8.2,
+    "requiredSkills": [
+      "C++",
+      "SQL",
+      "Computer Vision",
+      "Azure",
+      "Ruby on Rails",
+      "React",
+      "Angular"
+    ],
+    "rolesAndResponsibilities": [
+      "Implement security best practices",
+      "Create and maintain APIs",
+      "Participate in code reviews",
+      "Develop scalable web applications",
+      "Stay updated with industry trends"
+    ],
+    "__v": 0
+  }
+]
