@@ -1,3 +1,0 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-mongodb-tools.msi filter=lfs diff=lfs merge=lfs -text
