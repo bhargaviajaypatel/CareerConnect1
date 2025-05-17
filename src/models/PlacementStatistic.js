@@ -1,50 +1,52 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const PlacementStatisticSchema = new mongoose.Schema({
-  studentsPlaced: {
-    value: {
-      type: String,
-      required: true
-    },
-    increase: {
-      type: String,
-      default: "0%"
-    }
+  year: {
+    type: Number,
+    required: true
+  },
+  department: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  totalStudents: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  placedStudents: {
+    type: Number,
+    required: true,
+    min: 0
   },
   averagePackage: {
-    value: {
-      type: String,
-      required: true
-    },
-    increase: {
-      type: String,
-      default: "0%"
-    }
+    type: Number,
+    required: true,
+    min: 0
   },
-  successRate: {
-    value: {
-      type: String,
-      required: true
-    },
-    increase: {
-      type: String,
-      default: "0%"
-    }
+  highestPackage: {
+    type: Number,
+    min: 0
   },
-  campusRecruiters: {
-    value: {
-      type: String,
-      required: true
-    },
-    increase: {
-      type: String,
-      default: "0%"
-    }
+  companiesVisited: {
+    type: Number,
+    min: 0
   },
-  lastUpdated: {
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = mongoose.model('PlacementStatistic', PlacementStatisticSchema);
+// Update the updatedAt field before saving
+PlacementStatisticSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+export default mongoose.model('PlacementStatistic', PlacementStatisticSchema);

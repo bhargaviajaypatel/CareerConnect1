@@ -87,7 +87,7 @@ router.post("/register", upload.single('resume'), async (req, res) => {
 router.post(["/", "/login"], async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Auth endpoint called with email:", email, "and password:", password);
+    console.log("Auth endpoint called with email:", email);
     
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
@@ -98,40 +98,21 @@ router.post(["/", "/login"], async (req, res) => {
     
     // If user not found in database, try hardcoded users as fallback
     if (!user) {
-      console.log("User not found in database, trying hardcoded users");
-      
-      // Hardcoded users as fallback
-      const testUsers = [
-        { email: 'test@example.com', password: 'password', isAdmin: false },
-        { email: 'admin@example.com', password: 'admin123', isAdmin: true }
-      ];
-      
-      const testUser = testUsers.find(u => u.email === email);
-      
-      if (testUser) {
-        if (testUser.password !== password) {
-          console.log("Invalid password for hardcoded user:", email);
+      console.log("User not found in database");
       return res.json("Invalid User");
     }
     
-        console.log("Login successful for hardcoded user:", email, "isAdmin:", testUser.isAdmin);
-        return res.json(testUser.isAdmin ? "Admin" : "Success");
-      }
-      
-      console.log("User not found:", email);
-      return res.json("Invalid User");
-    }
-    
-    // Simple password check - no hashing
-    if (user.password !== password) {
+    // Use the comparePassword method from the User model
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       console.log("Invalid password for:", email);
       return res.json("Invalid User");
     }
     
-    console.log("Login successful for database user:", email, "isAdmin:", user.isAdmin);
+    console.log("Login successful for database user:", email, "isAdmin:", user.role === 'admin');
     
     // Return role-based response
-    return res.json(user.isAdmin ? "Admin" : "Success");
+    return res.json(user.role === 'admin' ? "Admin" : "Success");
   } catch (error) {
     console.error("Auth error:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -139,7 +120,7 @@ router.post(["/", "/login"], async (req, res) => {
 });
 
 // Verification endpoint to check if user is authenticated
-router.get("/verify", (req, res) => {
+router.get("/verify", async (req, res) => {
   try {
     // Get email from query params or headers
     const email = req.query.email || req.headers['user-email'];
@@ -149,32 +130,15 @@ router.get("/verify", (req, res) => {
       return res.json("Invalid");
     }
     
-    // Check if it's a hardcoded user
-    if (email === 'admin@example.com') {
-      console.log("User verified: admin@example.com isAdmin: true");
-      return res.json("Admin");
-    }
-    
-    if (email === 'test@example.com') {
-      console.log("User verified: test@example.com isAdmin: false");
-      return res.json("Success");
-    }
-    
     // Find the user in the database
-    User.findOne({ email })
-      .then(user => {
-        if (!user) {
-          console.log(`User not found: ${email}`);
-          return res.json("Invalid");
-        }
-        
-        console.log(`User verified: ${email} isAdmin: ${user.isAdmin}`);
-        return res.json(user.isAdmin ? "Admin" : "Success");
-      })
-      .catch(err => {
-        console.error("Error during verification:", err);
-        return res.json("Invalid");
-      });
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log(`User not found: ${email}`);
+      return res.json("Invalid");
+    }
+    
+    console.log(`User verified: ${email} role: ${user.role}`);
+    return res.json(user.role === 'admin' ? "Admin" : "Success");
   } catch (error) {
     console.error("Verification error:", error);
     return res.json("Invalid");

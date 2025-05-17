@@ -96,10 +96,10 @@ app.use((req, res) => {
       w: 'majority'
     };
 
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/CareerConnect';
+    const MONGODB_URI = "mongodb+srv://bhargaviajaypatel:bhargavi@cluster0.p7q0r.mongodb.net/careerconnectadmin?retryWrites=true&w=majority&appName=Cluster0";
     console.log(`[DB] Attempting connection to MongoDB with options: ${JSON.stringify(mongoOptions)}`);
     
-    await mongoose.connect(uri, mongoOptions);
+    await mongoose.connect(MONGODB_URI, mongoOptions);
     
     console.log('[DB] Mongoose connect call completed.');
 

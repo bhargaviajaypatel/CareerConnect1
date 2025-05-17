@@ -19,6 +19,11 @@ instance.interceptors.request.use(
       config.headers['user-email'] = userEmail;
     }
     
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     console.log(`Request: ${config.method?.toUpperCase()} ${config.url}`, config.data);
     return config;
   },
@@ -44,6 +49,11 @@ instance.interceptors.response.use(
       console.error('Request URL was:', error.config.baseURL + error.config.url);
     } else {
       console.error('Request Setup Error:', error.message);
+    }
+    if (error.response && error.response.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

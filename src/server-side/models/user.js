@@ -1,9 +1,63 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  },
+  profile: {
+    firstName: String,
+    lastName: String,
+    phone: String,
+    avatar: String,
+    bio: String,
+    department: String,
+    graduationYear: Number,
+    skills: [String],
+    resume: String
+  },
+  socialLinks: {
+    linkedin: String,
+    github: String,
+    portfolio: String
+  },
+  preferences: {
+    jobAlerts: {
+      type: Boolean,
+      default: true
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true
+    }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
   contactNumber: { type: String, required: true },
   sapId: { type: String, required: true },
   rollNo: { type: String, required: true },
@@ -17,7 +71,6 @@ const userSchema = new mongoose.Schema({
   graduationCGPA: { type: Number },
   stream: { type: String, required: true },
   sixthSemesterCGPA: { type: Number },
-  isAdmin: { type: Boolean, default: false },
   placementStatus: { type: String, default: "Not Placed" },
   companyPlaced: { type: String, default: null },
   package: { type: Number, default: null },
@@ -90,6 +143,34 @@ const userSchema = new mongoose.Schema({
   resetCode: { type: String }
   
 }, { timestamps: true }); // Add timestamps for createdAt and updatedAt
+
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update timestamps before saving
+userSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+// Method to compare password
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    throw error;
+  }
+};
 
 const UserModel = mongoose.model("User", userSchema);
 export { UserModel as User };

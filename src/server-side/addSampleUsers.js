@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Update MongoDB URI to use correct case
+const MONGODB_URI = process.env.MONGODB_URI.replace('CareerConnect', 'careerconnect');
+
 // Utility functions
 const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)];
 const getRandomElements = (array, count) => {
@@ -136,7 +139,7 @@ const generateSampleUsers = (count) => {
 const addSampleUsers = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/CareerConnect');
+    await mongoose.connect(MONGODB_URI || 'mongodb://localhost:27017/CareerConnect');
     console.log('MongoDB connected');
     
     // Check if users already exist

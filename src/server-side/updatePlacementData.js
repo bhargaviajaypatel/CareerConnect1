@@ -6,7 +6,7 @@ import { User } from './models/user.js';
 dotenv.config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/CareerConnect')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/careerconnect')
   .then(() => {
     console.log('Connected to MongoDB for updating placement data');
     updatePlacementData();

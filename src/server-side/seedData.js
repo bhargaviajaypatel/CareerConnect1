@@ -3,11 +3,12 @@ import dotenv from 'dotenv';
 import { User } from './models/user.js';
 import { Company } from './models/Company.js';
 import { Interview } from './models/Experience.js';
+import { Roadmap } from './models/Roadmap.js';
 
 dotenv.config();
 
 // Connection to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/CareerConnect', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/careerconnect', {
   authSource: 'admin',
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -111,8 +112,10 @@ const generateFakeUsers = (count) => {
     const firstName = getRandomElement(firstNames);
     const lastName = getRandomElement(lastNames);
     const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${getRandomNumber(1, 999)}@example.com`;
+    const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}${getRandomNumber(1, 999)}`;
     
     users.push({
+      username: username,
       name: `${firstName} ${lastName}`,
       email: email,
       password: 'password123', // Simple password for all test users
@@ -236,11 +239,68 @@ const generateFakeInterviewExperiences = (userCount, companyCount) => {
 
 // ---- Placeholder functions for missing data types ----
 const generateFakeRoadmaps = async (companies) => {
-  console.log('[Seed] Roadmap generation logic needs to be implemented based on Roadmap schema.');
-  // TODO: Import Roadmap model
-  // TODO: Generate roadmaps based on companies, roles, skills
-  // TODO: Return generated roadmaps
-  return [];
+  const roadmaps = [];
+  
+  const commonSkills = {
+    'Frontend Development': [
+      { title: 'HTML5 Fundamentals', type: 'video', url: 'https://www.w3schools.com/html/', description: 'Learn HTML5 basics' },
+      { title: 'CSS3 Mastery', type: 'video', url: 'https://www.w3schools.com/css/', description: 'Master CSS3 styling' },
+      { title: 'JavaScript ES6+', type: 'article', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', description: 'Modern JavaScript features' },
+      { title: 'React.js Tutorial', type: 'video', url: 'https://reactjs.org/tutorial/tutorial.html', description: 'Official React tutorial' }
+    ],
+    'Backend Development': [
+      { title: 'Node.js Basics', type: 'video', url: 'https://nodejs.dev/learn', description: 'Node.js fundamentals' },
+      { title: 'Express.js Guide', type: 'article', url: 'https://expressjs.com/guide/routing.html', description: 'Express.js routing and middleware' },
+      { title: 'MongoDB University', type: 'video', url: 'https://university.mongodb.com/', description: 'Learn MongoDB basics' },
+      { title: 'RESTful API Design', type: 'article', url: 'https://restfulapi.net/', description: 'REST API best practices' }
+    ],
+    'System Design': [
+      { title: 'System Design Primer', type: 'article', url: 'https://github.com/donnemartin/system-design-primer', description: 'Comprehensive system design guide' },
+      { title: 'Distributed Systems', type: 'video', url: 'https://www.distributed-systems.net/index.php/books/ds3/', description: 'Learn distributed systems' },
+      { title: 'Scalability', type: 'article', url: 'https://www.lecloud.net/post/7295452622/scalability-for-dummies-part-1-clones', description: 'Scalability fundamentals' }
+    ],
+    'Data Structures': [
+      { title: 'LeetCode Problems', type: 'article', url: 'https://leetcode.com/problemset/all/', description: 'Practice coding problems' },
+      { title: 'GeeksforGeeks DSA', type: 'video', url: 'https://www.geeksforgeeks.org/data-structures/', description: 'Data structures tutorials' },
+      { title: 'Algorithms Visualization', type: 'video', url: 'https://visualgo.net/', description: 'Visualize algorithms' }
+    ],
+    'Cloud Computing': [
+      { title: 'AWS Fundamentals', type: 'video', url: 'https://aws.amazon.com/getting-started/', description: 'AWS basics' },
+      { title: 'Azure Learning Path', type: 'video', url: 'https://docs.microsoft.com/learn/azure/', description: 'Microsoft Azure fundamentals' },
+      { title: 'Cloud Design Patterns', type: 'article', url: 'https://docs.microsoft.com/azure/architecture/patterns/', description: 'Cloud architecture patterns' }
+    ]
+  };
+
+  for (const company of companies) {
+    // Create 2-3 roadmaps per company
+    const numRoadmaps = getRandomNumber(2, 3);
+    
+    for (let i = 0; i < numRoadmaps; i++) {
+      const jobProfiles = ['Software Engineer', 'Full Stack Developer', 'Backend Developer', 'Frontend Developer', 'Cloud Engineer'];
+      const jobProfile = getRandomElement(jobProfiles);
+      
+      // Select 3-5 relevant skills for this job profile
+      const skillKeys = Object.keys(commonSkills);
+      const selectedSkillKeys = getRandomElements(skillKeys, getRandomNumber(3, 5));
+      
+      const skills = selectedSkillKeys.map(skillName => ({
+        skillName,
+        resources: commonSkills[skillName]
+      }));
+
+      const roadmap = {
+        companyId: company._id,
+        jobProfile,
+        skills,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      roadmaps.push(roadmap);
+    }
+  }
+
+  return roadmaps;
 };
 
 const generateFakeStatistics = async (users, companies, interviews) => {
@@ -273,8 +333,9 @@ const seedData = async () => {
     await User.deleteMany({ email: { $nin: [adminUserEmail] } });
     await Company.deleteMany({});
     await Interview.deleteMany({});
-    // TODO: Clear Roadmaps and Statistics if necessary
-    // await Roadmap.deleteMany({});
+    console.log('[Seed] Clearing existing roadmaps...');
+    await Roadmap.deleteMany({});
+    // TODO: Clear Statistics if necessary
     // await StatisticsModel.deleteMany({});
     console.log('[Seed] Existing data cleared.');
 
@@ -283,6 +344,7 @@ const seedData = async () => {
     if (!admin) {
       console.log(`[Seed] Admin user (${adminUserEmail}) not found, creating...`);
       admin = new User({
+        username: 'admin',
         name: 'Admin User',
         email: adminUserEmail,
         password: adminUserPassword,
@@ -316,6 +378,7 @@ const seedData = async () => {
     if (!specificUser) {
       console.log(`[Seed] Specific user (${specificUserEmail}) not found, creating...`);
       specificUser = new User({
+        username: 'student',
         name: 'Aarav Sharma',
         email: specificUserEmail,
         password: specificUserPassword,
@@ -360,10 +423,6 @@ const seedData = async () => {
     const fakeCompanies = generateFakeCompanies(companyCount);
     console.log(`[Seed] Generating fake interview experiences...`);
     const fakeInterviews = generateFakeInterviewExperiences(userCount + 2, companyCount); // +2 for admin/specific
-    console.log(`[Seed] Generating fake roadmaps (placeholder)...`);
-    const fakeRoadmaps = await generateFakeRoadmaps(fakeCompanies);
-    console.log(`[Seed] Generating fake statistics (placeholder)...`);
-    const fakeStatistics = await generateFakeStatistics([...fakeUsers, specificUser, admin], fakeCompanies, fakeInterviews);
 
     // Insert fake data
     console.log('[Seed] Inserting fake users...');
@@ -372,10 +431,15 @@ const seedData = async () => {
     const insertedCompanies = await Company.insertMany(fakeCompanies);
     console.log('[Seed] Inserting fake interviews...');
     const insertedInterviews = await Interview.insertMany(fakeInterviews);
-    // TODO: Insert Roadmaps
-    // await Roadmap.insertMany(fakeRoadmaps);
-    // TODO: Insert Statistics if applicable
-    // await StatisticsModel.insertMany(fakeStatistics);
+
+    // Generate and insert roadmaps using the inserted companies
+    console.log('[Seed] Generating fake roadmaps...');
+    const fakeRoadmaps = await generateFakeRoadmaps(insertedCompanies);
+    console.log('[Seed] Inserting fake roadmaps...');
+    await Roadmap.insertMany(fakeRoadmaps);
+
+    console.log('[Seed] Generating fake statistics (placeholder)...');
+    const fakeStatistics = await generateFakeStatistics([...insertedUsers, specificUser, admin], insertedCompanies, insertedInterviews);
 
     console.log('[Seed] Adding sample documents to users (placeholder)...');
     await addSampleDocumentsToUsers([...insertedUsers, specificUser]); // Add docs to generated + specific user

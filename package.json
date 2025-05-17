@@ -20,6 +20,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "bootstrap": "^5.3.3",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
@@ -61,7 +63,8 @@
     "eject": "react-scripts eject",
     "seed-db": "node src/server-side/seedData.js",
     "security-check": "node scripts/security-check.js",
-    "security-check:watch": "nodemon --watch package.json --watch package-lock.json scripts/security-check.js"
+    "security-check:watch": "nodemon --watch package.json --watch package-lock.json scripts/security-check.js",
+    "dev": "concurrently \"npm run server\" \"npm run start\""
   },
   "eslintConfig": {
     "extends": [
